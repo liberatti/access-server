@@ -1,0 +1,23 @@
+version: "3.3"
+services:
+  as:
+    build: 
+      context: .
+    image: tookasec/access-server:latest
+    privileged: true
+    volumes:
+      - as_data:/opt/access-server/data
+    ports:
+      - "5000:5000"
+      - "1195:1194"
+  docs:
+    image: redocly/redoc
+    ports:
+      - "5001:80"
+    environment:
+       SPEC_URL: openapi.yaml
+    volumes:
+      - ./openapi.yaml:/usr/share/nginx/html/openapi.yaml
+volumes:
+  as_data:
+    driver: local

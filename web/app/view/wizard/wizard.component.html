@@ -1,0 +1,47 @@
+<ng-container>
+    <form [formGroup]="form" id="login-form">
+        <mat-card class="login-card">
+            <mat-card-header>
+                <mat-card-title>Configuration</mat-card-title>
+            </mat-card-header>
+            <mat-card-content>
+                <div class="loading-box" *ngIf="form.value.status == 'loading'">
+                    <div class="spinner"></div>
+                </div>
+
+                <form [formGroup]="form" *ngIf="form.value.status == 'pending'">
+                    <mat-form-field class="w-100">
+                        <mat-label>name</mat-label>
+                        <input id="name" matInput formControlName="name" autocomplete="default" type="text">
+                    </mat-form-field>
+                    <mat-form-field class="w-100">
+                        <mat-label>subnet</mat-label>
+                        <input id="subnet" matInput formControlName="subnet" autocomplete="10.8.0.0 255.255.255.0"
+                            type="text">
+                    </mat-form-field>
+                    <mat-form-field class="w-100">
+                        <mat-label>public_address</mat-label>
+                        <input id="public_address" matInput formControlName="public_address" type="text">
+                    </mat-form-field>
+                    <mat-form-field class="w-100">
+                        <mat-label>public_port</mat-label>
+                        <input id="public_port" matInput formControlName="public_port" autocomplete="1194" type="text">
+                    </mat-form-field>
+                    <mat-form-field class="w-100">
+                        <mat-label>admin_user</mat-label>
+                        <input id="admin_user" matInput formControlName="admin_user" autocomplete="admin" type="text">
+                    </mat-form-field>
+                    <mat-form-field class="w-100">
+                        <mat-label>admin_pass</mat-label>
+                        <input id="admin_pass" matInput formControlName="admin_pass" autocomplete="admin"
+                            type="password">
+                    </mat-form-field>
+                </form>
+            </mat-card-content>
+
+            <mat-card-actions *ngIf="form.value.status == 'pending'">
+                <button mat-raised-button id="login" color="primary" (click)="onSubmit()">Apply</button>
+            </mat-card-actions>
+        </mat-card>
+    </form>
+</ng-container>

@@ -1,0 +1,82 @@
+<ng-container>
+    <mat-card>
+        <mat-card-header>
+            @if (isAddMode){
+            <mat-card-title>
+                {{ 'actions.create' | translate }}
+            </mat-card-title>
+            }@else{
+            <mat-card-title>
+                {{ 'actions.edit' | translate }}
+            </mat-card-title>
+            }
+        </mat-card-header>
+        <mat-card-content>
+            <div class="row">
+                <div class="col">
+                    <form [formGroup]="form">
+                        <mat-form-field class="w-100">
+                            <mat-label>name</mat-label>
+                            <input id="policy.name" matInput formControlName="name">
+                        </mat-form-field>
+                        <form [formGroup]="clientForm">
+                            <mat-card>
+                                <mat-form-field class="full-width">
+                                    <mat-label>Client</mat-label>
+                                    <mat-select formControlName="client" [compareWith]="compareFn" (selectionChange)="onAddClient()">
+                                        <mat-option *ngFor="let c of __clients;" [value]="c">
+                                            {{c.name}}
+                                        </mat-option>
+                                    </mat-select>
+                                </mat-form-field>
+                                <mat-card-content>
+                                    <mat-chip-listbox>
+                                        <mat-chip-row *ngFor="let p of form.value.clients"
+                                            (removed)="onRemoveClient(p.id)">
+                                            {{p.name}}
+                                            <button matChipRemove>
+                                                <mat-icon>cancel</mat-icon>
+                                            </button>
+                                        </mat-chip-row>
+                                    </mat-chip-listbox>
+                                </mat-card-content>
+                            </mat-card>
+                        </form>
+                        <form [formGroup]="networkForm">
+                            <mat-card>
+                                <mat-form-field class="w-100">
+                                    <mat-label>Network</mat-label>
+                                    <input matInput formControlName="addr">
+                                    <button color="primary" matSuffix mat-icon-button (click)="onAddNetwork()">
+                                        <mat-icon>add</mat-icon>
+                                    </button>
+                                </mat-form-field>
+                                <mat-card-content>
+                                    <mat-chip-listbox>
+                                        <mat-chip-row *ngFor="let p of form.value.networks"
+                                            (removed)="onRemoveNetwork(p)">
+                                            {{p}}
+                                            <button matChipRemove>
+                                                <mat-icon>cancel</mat-icon>
+                                            </button>
+                                        </mat-chip-row>
+                                    </mat-chip-listbox>
+                                </mat-card-content>
+                            </mat-card>
+                        </form>
+
+
+                    </form>
+                </div>
+            </div>
+        </mat-card-content>
+        <mat-card-actions align="end">
+            <button id="save-btn" type="button" (click)="onSubmit()" mat-raised-button color="primary">
+                <mat-icon>save</mat-icon> {{ 'actions.save' | translate }}
+            </button>
+            <button mat-mini-fab color="primary" [routerLink]="['/policy']">
+                <mat-icon>keyboard_return</mat-icon>
+            </button>
+        </mat-card-actions>
+    </mat-card>
+</ng-container>

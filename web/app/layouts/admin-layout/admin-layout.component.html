@@ -1,0 +1,63 @@
+<div class="navbar-container navbar-black" [class.example-is-mobile]="isMobile()">
+    <!-- Top navbar -->
+    <mat-toolbar class="navbar" color="primary" style="align-items: center;justify-content: center;">
+        <button mat-icon-button (click)="onSidenavToggle()">
+            <mat-icon>menu</mat-icon>
+        </button>
+        <a class="navbar-brand" [routerLink]="['/']" matTooltip="Home">
+            <span style=" align-items: center;justify-content: center;">
+                <b style="font-size: 14pt;margin-left: 5px;">{{title}}</b>
+            </span>
+        </a>
+        <span class="navbar-spacer"></span>
+        <button mat-button [matMenuTriggerFor]="userMenu" style="display: flex; justify-content: space-between;align-items: center;">
+            {{user.username}}
+            <mat-icon>arrow_drop_down</mat-icon>
+        </button>
+        <mat-menu id="userMenu" #userMenu="matMenu" xPosition="before" yPosition="above" [overlapTrigger]="false">
+            <a mat-menu-item [routerLink]="['/auth/account']">
+                <mat-icon>person</mat-icon>
+                <span>Account</span>
+            </a>
+            <a id="logout_link" mat-menu-item [routerLink]="['/security/logout']">
+                <mat-icon>exit_to_app</mat-icon>
+                <span>Log out</span>
+            </a>
+        </mat-menu>
+    </mat-toolbar>
+    <!--     <mat-progress-bar mode="indeterminate" *ngIf="loading"></mat-progress-bar> -->
+    <mat-sidenav-container class="navbar-sidenav-container">
+        <!-- Side nav -->
+        <mat-sidenav [opened]="isSidenavActive()" [mode]="isMobile() ? 'over' : 'side'" (closed)="onSidenavClose()"
+            fixedTopGap="56" class="sidenav">
+            <mat-nav-list>
+                <mat-nav-list>
+                    <a id="hostname_menu_link" class="icon-link" mat-list-item [routerLink]="['/user']"
+                        routerLinkActive="active">
+                        <mat-icon mat-list-icon>
+                            domain
+                        </mat-icon>
+                        <span>User</span>
+                    </a>
+                    <a id="certificate_menu_link" class="icon-link" mat-list-item [routerLink]="['/policy']"
+                        routerLinkActive="active">
+                        <mat-icon mat-list-icon>
+                            security
+                        </mat-icon>
+                        <span>Policies</span>
+                    </a>
+                </mat-nav-list>
+                <a id="push-bottom" class="icon-link" mat-list-item (click)="showAbout()">
+                    <mat-icon mat-list-icon>
+                        self_improvement
+                    </mat-icon>
+                    <span>About</span>
+                </a>
+            </mat-nav-list>
+        </mat-sidenav>
+        <!-- Main content -->
+        <mat-sidenav-content class="sidenav-content mat-typography">
+            <router-outlet></router-outlet>
+        </mat-sidenav-content>
+    </mat-sidenav-container>
+</div>
