@@ -10,7 +10,7 @@ import bcrypt
 from flask import json
 import psutil
 from api.model.user_model import UserModel
-from api.utils import logger
+from api.utils import chmod_r, logger
 from api.tools.firewall_tool import FirewallTool
 from api.tools.pki_tool import PKITool
 from api.model.vpn_model import VPNSessionModel
@@ -152,6 +152,7 @@ class VPNTool:
 
     @classmethod
     def start_service(cls, wait=True):
+        chmod_r("data",0o777,recursive=True)
         with open(f"data/config.json", "r") as a:
             config = json.loads(a.read())
             cls.__create_server(config)

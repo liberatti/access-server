@@ -100,7 +100,6 @@ if __name__ == "__main__":
         create_db()
 
     if VPNTool.is_initialized():
-        chmod_r("data",0o777,recursive=True)
         FirewallTool.create_firewall()
         VPNTool.start_service(wait=False)
 
