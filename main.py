@@ -14,7 +14,7 @@ from flask_jwt_extended import (
 )
 import schedule
 from flask_cors import CORS
-from api.utils import handle_sigterm, ma, gen_random_string
+from api.utils import handle_sigterm, ma, gen_random_string,chmod_r
 from api.controller.user_controller import routes as user_routes
 from api.controller.server_controller import routes as server_routes
 from api.controller.policy_controller import routes as policy_routes
@@ -100,6 +100,7 @@ if __name__ == "__main__":
         create_db()
 
     if VPNTool.is_initialized():
+        chmod_r("data",0o777,recursive=True)
         FirewallTool.create_firewall()
         VPNTool.start_service(wait=False)
 

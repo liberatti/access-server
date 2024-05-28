@@ -165,8 +165,6 @@ class VPNTool:
         if wait:
             cls.wait_bind()
 
-        os.chmod("data/admin.db", 0o777)
-
     @classmethod
     def is_initialized(cls):
         return os.path.exists(f"data/config.json")
