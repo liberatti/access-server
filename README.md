@@ -1,4 +1,4 @@
-# TooKa Access Server
+# Access Server
 
 It's a full network tunneling VPN software solution that integrates OpenVPN server capabilities and enterprise management capabilities.
 
@@ -27,7 +27,7 @@ docker volume create vpn_config
 docker run --privileged -p 1194:1194 -p 5000:5000 \
     -v vpn_config:/opt/access-server/data \
     --name tooka-as \
-    tookasec/access-server:latest
+    liberatti/access-server:latest
 ```
 ## Configuration
 

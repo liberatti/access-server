@@ -3,7 +3,7 @@ services:
   as:
     build: 
       context: .
-    image: tookasec/access-server:latest
+    image: liberatti/access-server:latest
     privileged: true
     volumes:
       - as_data:/opt/access-server/data
