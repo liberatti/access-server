@@ -18,8 +18,8 @@ export abstract class APIService<T, ID> implements APIOperations<T, ID> {
         if (window.location.pathname.length === 1) {
             ctx = "";
         }
-        //this.END_POINT = window.location.protocol + "//" + window.location.host + '/api/' + apiCtx;
-        this.END_POINT = "http://localhost:5000/api/" + apiCtx
+        this.END_POINT = window.location.protocol + "//" + window.location.host + '/api/' + apiCtx;
+        //this.END_POINT = "http://localhost:5000/api/" + apiCtx
     }
 
     get(pagging?: Pageable): Observable<Page> {
