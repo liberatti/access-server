@@ -71,7 +71,7 @@ export class AuthService {
         if (window.location.pathname.length === 1) {
             ctx = "";
         }
-        this.END_POINT = window.location.protocol + "//" + window.location.host + '/admin/api';
+        this.END_POINT = window.location.protocol + "//" + window.location.host + '/api';
         //this.END_POINT = "http://localhost:5000/api"
 
     }
