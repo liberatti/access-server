@@ -3,18 +3,17 @@ import os
 import re
 import socket
 import subprocess
-import threading
 import time
 import traceback
 import bcrypt
 from flask import json
 import psutil
-from api.model.user_model import UserModel
+from api.model.user_model import UserDao
 from api.utils import chmod_r, logger
 from api.tools.firewall_tool import FirewallTool
 from api.tools.pki_tool import PKITool
-from api.model.vpn_model import VPNSessionModel
-from api.model.policy_model import PolicyClientModel
+from api.model.vpn_model import VPNSessionDao
+from api.model.policy_model import PolicyClientDao
 
 
 class VPNTool:
@@ -29,7 +28,7 @@ class VPNTool:
     def initialize(cls, config):
         logger.info(f"Initialize server {config['name']}")
 
-        user_model = UserModel()
+        user_model = UserDao()
         hashed = bcrypt.hashpw(
             config.pop("admin_pass").encode("utf8"), bcrypt.gensalt()
         )
@@ -41,25 +40,6 @@ class VPNTool:
                 "role": "admin",
             }
         )
-        """
-        a_model = AliasModel(user_model.connection)
-        a_model.persist(
-            {
-                "name": "firehol_level1",
-                "url": "https://iplists.firehol.org/files/firehol_level1.netset",
-                "type": "remote",
-                "schedule": "day",
-            }
-        )
-        a_model.persist(
-            {
-                "name": "urlhaus.abuse",
-                "url": "https://urlhaus.abuse.ch/downloads/hostfile/",
-                "type": "remote",
-                "schedule": "day",
-            }
-        )
-        """
         user_model.commit()
         user_model.close()
 
@@ -77,16 +57,16 @@ class VPNTool:
     @classmethod
     def session_monitor(cls):
         logger.debug(f"Session monitor has started")
-        model = VPNSessionModel()
+        model = VPNSessionDao()
         sessions = model.query_all()
-        for s in sessions["content"]:
+        for s in sessions["data"]:
             if "pending" in s["state"]:
                 logger.info(f"User {s['user_id']} connected, bind {s['local_ip']}")
                 model.update_by_id(s["id"], {"state": "activated"})
                 model.commit()
                 FirewallTool.refresh_user_chain(s["user_id"])
 
-                policies = PolicyClientModel().get_by_client(s["user_id"])
+                policies = PolicyClientDao().get_by_client(s["user_id"])
                 for p in policies:
                     FirewallTool.refresh_policy_chain(p["id"])
 
@@ -96,7 +76,7 @@ class VPNTool:
                 model.commit()
                 FirewallTool.refresh_user_chain(s["user_id"])
 
-                policies = PolicyClientModel().get_by_client(s["user_id"])
+                policies = PolicyClientDao().get_by_client(s["user_id"])
                 for p in policies:
                     FirewallTool.refresh_policy_chain(p["id"])
         model.close()
@@ -152,13 +132,14 @@ class VPNTool:
 
     @classmethod
     def start_service(cls, wait=True):
+        logger.info(f"Starting server")
         chmod_r("data",0o777,recursive=True)
         with open(f"data/config.json", "r") as a:
             config = json.loads(a.read())
             cls.__create_server(config)
         if not os.path.exists(f"logs"):
             os.mkdir(f"logs")
-        logger.info(f"Starting server")
+        
         subprocess.Popen(
             f"openvpn --config server.conf --log logs/server.log --writepid server.pid",
             shell=True,
@@ -196,6 +177,7 @@ class VPNTool:
             f"client-connect openvpn-adapter.py",
             f"client-disconnect openvpn-adapter.py",
             f"crl-verify {PKITool.pki_dir}/crl.pem",
+            f"management 127.0.0.1 23000"
         ]
         if "networks" in config:
             for r in config["networks"]:
@@ -214,7 +196,7 @@ class VPNTool:
     @classmethod
     def remove_client(cls, user_id):
         PKITool.remove_client(user_id)
-        model = PolicyClientModel()
+        model = PolicyClientDao()
         policies = model.get_by_client(user_id)
         if policies:
             for p in policies:
@@ -222,7 +204,7 @@ class VPNTool:
 
     @classmethod
     def get_openvpn_client(cls, user_id):
-        model = UserModel()
+        model = UserDao()
         with open(f"data/config.json", "r") as a:
             config = json.loads(a.read())
 

@@ -68,7 +68,7 @@ export class PolicyFormComponent implements OnInit {
     this.isAddMode = !this.route.snapshot.params['id'];
 
     this.userService.get().subscribe(data => {
-      this.__clients = data.content;
+      this.__clients = data.data;
     });
 
     if (!this.isAddMode) {

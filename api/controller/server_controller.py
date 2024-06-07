@@ -1,10 +1,9 @@
-import socket
 import threading
 from flask import Blueprint, json, request
 from api.utils import has_any_authority, logger
 from api.tools.vpn_tool import VPNTool
 from api.tools.response_builder import ResponseBuilder
-from api.model.user_model import PortMappingModel
+from api.model.user_model import PortMappingDao
 from config import main_path
 
 routes = Blueprint("server", __name__)
@@ -38,7 +37,7 @@ def activate():
 
 @routes.route("/port_map", methods=["POST"])
 def port_map():
-    model = PortMappingModel()
+    model = PortMappingDao()
     if "static" in request.json["type"]:
         if model.is_free(request.json["bind_port"]):
             pk = model.persist(request.json)
@@ -51,7 +50,7 @@ def port_map():
 @routes.route("/port_map/<port_map>", methods=["DELETE"])
 @has_any_authority(["admin"])
 def del_port_map(port_map):
-    model = PortMappingModel()
+    model = PortMappingDao()
     response = None
     try:
         result = model.delete_by_id(port_map)

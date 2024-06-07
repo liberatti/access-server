@@ -20,13 +20,13 @@ from api.controller.server_controller import routes as server_routes
 from api.controller.policy_controller import routes as policy_routes
 from config import JWT_EXPIRATION_DELTA
 from api.tools.vpn_tool import FirewallTool, VPNTool
-from api.model.policy_model import PolicyClientModel, PolicyModel
+from api.model.policy_model import PolicyClientDao, PolicyDao
 from api.model.user_model import (
-    UserPolicyModel,
-    UserModel,
-    PortMappingModel,
+    UserPolicyDao,
+    UserDao,
+    PortMappingDao,
 )
-from api.model.vpn_model import VPNSessionModel
+from api.model.vpn_model import VPNSessionDao
 
 app = Flask(__name__)
 
@@ -78,12 +78,12 @@ def _scheduler():
 def create_db():
     if not os.path.exists(f"data"):
         os.mkdir(f"data")
-    UserModel().create_schema()
-    PolicyModel().create_schema()
-    PolicyClientModel().create_schema()
-    UserPolicyModel().create_schema()
-    PortMappingModel().create_schema()
-    VPNSessionModel().create_schema()
+    UserDao().create_schema()
+    PolicyDao().create_schema()
+    PolicyClientDao().create_schema()
+    UserPolicyDao().create_schema()
+    PortMappingDao().create_schema()
+    VPNSessionDao().create_schema()
 
 
 if __name__ == "__main__":

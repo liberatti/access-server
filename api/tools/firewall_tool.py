@@ -1,8 +1,8 @@
 import subprocess
 from api.utils import logger
-from api.model.user_model import UserPolicyModel, PortMappingModel, UserModel
-from api.model.policy_model import PolicyModel
-from api.model.vpn_model import VPNSessionModel
+from api.model.user_model import UserPolicyDao, PortMappingDao
+from api.model.policy_model import PolicyDao
+from api.model.vpn_model import VPNSessionDao
 
 
 class FirewallTool:
@@ -44,10 +44,11 @@ class FirewallTool:
             f"iptables-restore iptables-start.save",
             shell=True,
         )
+        logger.info(f"Build firewall")
 
-        policies = PolicyModel().query_all()
-        if "content" in policies:
-            for p in policies["content"]:
+        policies = PolicyDao().query_all()
+        if "data" in policies:
+            for p in policies["data"]:
                 cls.create_policy_chain(p["id"])
                 cls.refresh_policy_chain(p["id"])
 
@@ -55,8 +56,8 @@ class FirewallTool:
     def refresh_user_chain(cls, user_id):
         logger.debug(f"Refresh {user_id} chain")
 
-        model = UserPolicyModel()
-        s_model = VPNSessionModel(model.connection)
+        model = UserPolicyDao()
+        s_model = VPNSessionDao(connection=model.connection)
 
         fw_idx = cls.get_user_rule_ids(user_id)
         if fw_idx:
@@ -84,7 +85,7 @@ class FirewallTool:
                         check=True,
                         stderr=subprocess.DEVNULL,
                     )
-            m_model = PortMappingModel(model.connection)
+            m_model = PortMappingDao(connection=model.connection)
             mappings = m_model.get_by_user_id(user_id)
             if mappings:
                 for map in mappings:
@@ -108,8 +109,8 @@ class FirewallTool:
     def refresh_policy_chain(cls, policy_id):
         logger.info(f"Refresh policy p_{policy_id}")
 
-        model = PolicyModel()
-        s_model = VPNSessionModel(model.connection)
+        model = PolicyDao()
+        s_model = VPNSessionDao(connection=model.connection)
 
         subprocess.run(
             f"iptables -F p_{policy_id}",

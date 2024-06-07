@@ -27,7 +27,7 @@ import { RouterModule } from '@angular/router';
 import { TranslateModule } from '@ngx-translate/core';
 import { ConfirmDialogComponent } from 'web/app/components/confirm-dialog/confirm-dialog.component';
 import { User } from 'web/app/models/security';
-import { DefaultPageable } from 'web/app/models/shared';
+import { DefaultPageMeta } from 'web/app/models/shared';
 import { NotificationService } from 'web/app/services/notification.service';
 import { UserService } from 'web/app/services/security.service';
 import { FileSaverModule, FileSaverService } from 'ngx-filesaver';
@@ -49,7 +49,7 @@ import { FileSaverModule, FileSaverService } from 'ngx-filesaver';
 export class UserListComponent implements OnInit, AfterViewInit {
     userDC: string[] = ['name', 'extra_networks', 'role', 'action'];
     userDS: MatTableDataSource<never>;
-    userPA = new DefaultPageable();
+    userPA = new DefaultPageMeta();
 
     constructor(
         private notificationService: NotificationService,
@@ -68,8 +68,8 @@ export class UserListComponent implements OnInit, AfterViewInit {
     }
     updateGridTable() {
         this.userService.get(this.userPA).subscribe(data => {
-            this.userDS = new MatTableDataSource(data.content);
-            this.userPA.total_elements = data.total_elements;
+            this.userDS = new MatTableDataSource(data.data);
+            this.userPA.total_elements = data.metadata.total_elements;
         });
     }
 
@@ -87,8 +87,8 @@ export class UserListComponent implements OnInit, AfterViewInit {
     }
     onSave() {
         this.userService.get(this.userPA).subscribe(data => {
-            this.userDS = new MatTableDataSource(data.content);
-            this.userPA.total_elements = data.total_elements;
+            this.userDS = new MatTableDataSource(data.data);
+            this.userPA.total_elements = data.metadata.total_elements;
         });
         console.log("onSave");
     }

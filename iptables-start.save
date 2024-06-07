@@ -5,6 +5,7 @@
 -A INPUT -m state --state ESTABLISHED,RELATED -j ACCEPT
 -A INPUT -p tcp -m tcp --dport 5000 -j ACCEPT
 -A INPUT -p tcp -m tcp --dport 1194 -j ACCEPT
+-A INPUT -p tcp -m tcp -s 127.0.0.1 --dport 23000 -j ACCEPT
 -A INPUT -i tun0 -p icmp -j ACCEPT
 -A FORWARD -m state --state ESTABLISHED,RELATED -j ACCEPT
 COMMIT

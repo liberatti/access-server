@@ -68,12 +68,7 @@ class ResponseBuilder:
     @classmethod
     def data_list(cls, dict, schema=None):
         if schema:
-            return {
-                "content": [schema.dump(i) for i in dict["content"]],
-                "total_pages": dict["total_pages"],
-                "total_elements": dict["total_elements"],
-                "per_page": dict["per_page"],
-            }
+            return [schema.dump(i) for i in dict]
         else:
             return jsonify(dict), 201
 

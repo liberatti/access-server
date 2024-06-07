@@ -3,8 +3,9 @@ import os
 import sys
 import bcrypt
 from api.utils import logger
-from api.model.user_model import UserModel
-from api.model.vpn_model import VPNSessionModel
+from api.model.user_model import UserDao
+from api.model.vpn_model import VPNSessionDao
+
 
 def print_env():
     for var, value in os.environ.items():
@@ -12,7 +13,7 @@ def print_env():
 
 
 def auth_user(username, password):
-    model = UserModel()
+    model = UserDao()
     user = model.find_by_username(username)
     if bcrypt.checkpw(password, user["password"].encode("utf8")):
         logger.info("auth success! ")
@@ -21,7 +22,7 @@ def auth_user(username, password):
 
 
 def connect(user_id, remote_port, remote_ip, local_ip):
-    model = VPNSessionModel()
+    model = VPNSessionDao()
     session = {
         "user_id": user_id,
         "remote_port": remote_port,
@@ -36,7 +37,7 @@ def connect(user_id, remote_port, remote_ip, local_ip):
 
 
 def disconnect(user_id):
-    model = VPNSessionModel()
+    model = VPNSessionDao()
     model.delete_by_user_id(user_id)
     model.commit()
     model.close()

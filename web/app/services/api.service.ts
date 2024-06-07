@@ -1,7 +1,7 @@
 import { HttpClient, HttpParams } from '@angular/common/http';
 import { Injectable } from '@angular/core';
 import { Observable } from 'rxjs';
-import { APIOperations, Page, Pageable } from '../models/shared';
+import { APIOperations, Page, PageMeta } from '../models/shared';
 import { LocalStorageService } from './localstorage.service';
 
 @Injectable({
@@ -22,7 +22,7 @@ export abstract class APIService<T, ID> implements APIOperations<T, ID> {
         //this.END_POINT = "http://localhost:5000/api/" + apiCtx
     }
 
-    get(pagging?: Pageable): Observable<Page> {
+    get(pagging?: PageMeta): Observable<Page> {
         let params = new HttpParams();
         if (pagging) {
             params = params.append('page', pagging.page);
@@ -35,7 +35,7 @@ export abstract class APIService<T, ID> implements APIOperations<T, ID> {
         return this.httpClient.get<T>(this.END_POINT + "/" + id);
     }
 
-    getByName(name: string, pagging?: Pageable): Observable<Page> {
+    getByName(name: string, pagging?: PageMeta): Observable<Page> {
         let options = {
             params: new HttpParams()
         }

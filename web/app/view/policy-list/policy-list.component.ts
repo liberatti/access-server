@@ -28,7 +28,7 @@ import { RouterModule } from '@angular/router';
 import { TranslateModule } from '@ngx-translate/core';
 import { ConfirmDialogComponent } from 'web/app/components/confirm-dialog/confirm-dialog.component';
 import { User } from 'web/app/models/security';
-import { DefaultPageable } from 'web/app/models/shared';
+import { DefaultPageMeta } from 'web/app/models/shared';
 import { NotificationService } from 'web/app/services/notification.service';
 import { PolicyService } from 'web/app/services/policy.service';
 
@@ -50,7 +50,7 @@ export class PolicyListComponent {
   displayedColumns: string[] = ['name', 'networks', 'total_targets', 'action'];
 
   dataSource: MatTableDataSource<never>;
-  policyPA = new DefaultPageable();
+  policyPA = new DefaultPageMeta();
 
   constructor(
     private notificationService: NotificationService,
@@ -67,8 +67,8 @@ export class PolicyListComponent {
 
   updateGridTable() {
     this.policyService.get(this.policyPA).subscribe(data => {
-      this.dataSource = new MatTableDataSource(data.content);
-      this.policyPA.total_elements = data.total_elements;
+      this.dataSource = new MatTableDataSource(data.data);
+      this.policyPA.total_elements = data.metadata.total_elements;
     });
   }
 
@@ -80,8 +80,8 @@ export class PolicyListComponent {
 
   onSave() {
     this.policyService.get(this.policyPA).subscribe(data => {
-      this.dataSource = new MatTableDataSource(data.content);
-      this.policyPA.total_elements = data.total_elements;
+      this.dataSource = new MatTableDataSource(data.data);
+      this.policyPA.total_elements = data.metadata.total_elements;
     });
     console.log("onSave");
   }
