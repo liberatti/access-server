@@ -38,7 +38,7 @@ def get():
     else:
         result = model.query_all()
 
-    if result["total_pages"] > 0:
+    if result['metadata']["total_pages"] > 0:
         for p in result["data"]:
             if "clients" in p:
                 u_model = UserDao()

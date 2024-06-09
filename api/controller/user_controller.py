@@ -42,7 +42,7 @@ def get():
         result = model.query_all(page, per_page)
     else:
         result = model.query_all()
-    if result['meta']["total_pages"] > 0:
+    if result['metadata']["total_pages"] > 0:
         for r in result["data"]:
             r.pop("password")
         return ResponseBuilder.data(result)

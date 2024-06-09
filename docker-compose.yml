@@ -10,6 +10,7 @@ services:
     ports:
       - "5000:5000"
       - "1194:1194"
+      - "8080:8080"
   docs:
     image: redocly/redoc
     ports:
