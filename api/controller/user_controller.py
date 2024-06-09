@@ -65,11 +65,15 @@ def get_by_id(user_id):
 @has_any_authority(["admin"])
 def update(user_id):
     model = UserDao()
+    user = model.get_by_id(user_id)
     try:
         data = request.json
         if "password" in data:
             hashed = bcrypt.hashpw(data["password"].encode("utf8"), bcrypt.gensalt())
             data.update({"password": hashed.decode("utf-8")})
+        else:
+            data.update({"password": user['password']})
+            
         model.update_by_id(user_id, data)
         model.commit()
         FirewallTool.refresh_user_chain(user_id)
