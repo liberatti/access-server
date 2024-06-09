@@ -65,7 +65,7 @@ class UserDao(SQLiteDAO):
                 port_map = p_model.get_by_id(pm)
                 if "user_id" not in port_map:
                     p_model.update_by_id(pm, {"user_id": pk})
-
+        logger.info(dict)
         return super().update_by_id(pk, dict)
 
     def fetchone(self, cursor):

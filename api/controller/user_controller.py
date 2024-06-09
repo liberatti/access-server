@@ -42,7 +42,7 @@ def get():
         result = model.query_all(page, per_page)
     else:
         result = model.query_all()
-    if result['metadata']["total_pages"] > 0:
+    if result["metadata"]["total_pages"] > 0:
         for r in result["data"]:
             r.pop("password")
         return ResponseBuilder.data(result)
@@ -68,12 +68,12 @@ def update(user_id):
     user = model.get_by_id(user_id)
     try:
         data = request.json
-        if "password" in data:
+        if "password" in data and len(data["password"]) > 1:
             hashed = bcrypt.hashpw(data["password"].encode("utf8"), bcrypt.gensalt())
             data.update({"password": hashed.decode("utf-8")})
         else:
-            data.update({"password": user['password']})
-            
+            data.update({"password": user["password"]})
+
         model.update_by_id(user_id, data)
         model.commit()
         FirewallTool.refresh_user_chain(user_id)
@@ -87,7 +87,7 @@ def update(user_id):
 @has_any_authority(["admin"])
 def delete(user_id):
     model = UserDao()
-    user=model.get_by_id(user_id)
+    user = model.get_by_id(user_id)
     response = None
     try:
         result = model.delete_by_id(user_id)
