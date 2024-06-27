@@ -28,6 +28,17 @@ class VPNSessionDao(SQLiteDAO):
         finally:
             cursor.close()
 
+    def get_all_by_user_id(self, user_id):
+        query = f"SELECT * FROM {self.__collection_name__} WHERE user_id=:user_id"
+        filter = {"user_id": user_id}
+        logger.debug(f"{query} : {str(filter)}")
+        try:
+            cursor = self.connection.cursor()
+            cursor.execute(query, filter)
+            return self.fetchall(cursor)
+        finally:
+            cursor.close()
+
     def get_by_user_id(self, user_id):
         query = f"SELECT * FROM {self.__collection_name__} WHERE user_id=:user_id and state='activated' limit 1"
         filter = {"user_id": user_id}

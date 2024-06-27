@@ -59,34 +59,26 @@ export class UserService extends APIService<User, string> {
 @Injectable({
     providedIn: 'root'
 })
-export class AuthService {
-
-    private END_POINT: string;
+export class AuthService extends APIService<User, string> {
 
     constructor(
-        protected httpClient: HttpClient,
-        protected storageService: LocalStorageService,
+        httpClient: HttpClient,
+        storageService: LocalStorageService
     ) {
-        let ctx = window.location.pathname as string;
-        if (window.location.pathname.length === 1) {
-            ctx = "";
-        }
-        this.END_POINT = window.location.protocol + "//" + window.location.host + '/api';
-        //this.END_POINT = "http://localhost:5000/api"
-
+        super(httpClient, storageService, "user");
     }
 
     login(data: User): Observable<any> {
-        return this.httpClient.post<any>(this.END_POINT + "/user/login", data);
+        return this.httpClient.post<any>(this.END_POINT + "/login", data);
     }
     logout(): void {
     }
 
     changeAccount(data: User): Observable<any> {
-        return this.httpClient.post<User>(this.END_POINT + "/user/", data);
+        return this.httpClient.post<User>(this.END_POINT + "/", data);
     }
 
     getCurrentUser(): Observable<User> {
-        return this.httpClient.get<any>(this.END_POINT + "/user/info/");
+        return this.httpClient.get<any>(this.END_POINT + "/info/");
     }
 }

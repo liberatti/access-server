@@ -38,7 +38,9 @@ def connect(user_id, remote_port, remote_ip, local_ip):
 
 def disconnect(user_id):
     model = VPNSessionDao()
-    model.delete_by_user_id(user_id)
+    sessions = model.get_all_by_user_id(user_id)
+    for s in sessions:
+        model.update_by_id(s["id"], {"state": "disconnect"})
     model.commit()
     model.close()
     sys.exit(0)
