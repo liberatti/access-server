@@ -7,6 +7,8 @@ export interface User {
     locale: string;
     policies: Array<PolicyModel>;
     port_mappings: Array<PortMappingModel>;
+    sessions: Array<VPNSession>;
+
 }
 export interface PortMappingModel {
     id: string;
@@ -21,4 +23,12 @@ export interface PolicyModel {
     name: string;
     networks: Array<string>;
     clients: Array<User>;
+}
+
+export interface VPNSession {
+    id: string;
+    remote_port: number;
+    remote_ip: string;
+    local_ip: string;
+    state: string;
 }

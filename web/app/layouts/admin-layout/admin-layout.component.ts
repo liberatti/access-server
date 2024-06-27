@@ -9,10 +9,9 @@ import { MatToolbarModule } from '@angular/material/toolbar';
 import { Router, RouterModule } from '@angular/router';
 import { TranslateService } from '@ngx-translate/core';
 import * as moment from 'moment';
-import { Subscription, Subject, takeUntil, delay } from 'rxjs';
+import { Subject, takeUntil } from 'rxjs';
 import { User } from 'web/app/models/security';
 import { FrontendConfig } from 'web/app/models/shared';
-import { LoadingService } from 'web/app/services/loading.service';
 import { LocalStorageService } from 'web/app/services/localstorage.service';
 import { AuthService, ServerService } from 'web/app/services/security.service';
 import { MatButtonToggleModule } from '@angular/material/button-toggle';
@@ -34,8 +33,6 @@ export class AdminLayoutComponent implements OnInit, OnDestroy, AfterViewInit {
   showSpinner: boolean = false;
   user: User = <User>{};
   isAdmin: boolean = false;
-
-  private autoLogoutSubscription: Subscription = new Subscription;
   loading: boolean = false;
   config: FrontendConfig = <FrontendConfig>{ locale: { key: 'en_US' }, navGroup: "dashboard", sidenavOpened: false };
 
@@ -56,7 +53,6 @@ export class AdminLayoutComponent implements OnInit, OnDestroy, AfterViewInit {
     private localStorage: LocalStorageService,
     private breakpointObserver: BreakpointObserver,
     private translate: TranslateService,
-    private _loading: LoadingService,
     private serverService: ServerService,
     private router: Router,
     private portDialog: MatDialog
@@ -85,7 +81,6 @@ export class AdminLayoutComponent implements OnInit, OnDestroy, AfterViewInit {
     return ['XSmall', 'Small'].includes(this.currentScreenSize);
   }
   ngOnDestroy() {
-    this._loading.loadingSub?.unsubscribe();
     this.destroyed.next();
     this.destroyed.complete();
   }
@@ -117,11 +112,6 @@ export class AdminLayoutComponent implements OnInit, OnDestroy, AfterViewInit {
   }
 
   ngOnInit(): void {
-    this._loading.loadingSub
-      .pipe(delay(0))
-      .subscribe((loading) => {
-        this.loading = loading;
-      });
     this.translate.setDefaultLang('en_US');
     if (!window.localStorage['x-user']) {
       this.authService.getCurrentUser().subscribe(data => {

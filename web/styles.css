@@ -1,10 +1,11 @@
 /* You can add global styles to this file, and also import other style files */
 
 /* You can add global styles to this file, and also import other style files */
-.mat-app-background{
+.mat-app-background {
     margin: 0px;
     padding: 0px;
 }
+
 .mat-toolbar.mat-primary {
     --mat-toolbar-container-background-color: #101b2e;
     --mat-toolbar-container-text-color: #eee;
@@ -46,8 +47,11 @@
 }
 
 
-.mat-column-action .toggle-container {
+.mat-column-action {
     justify-content: end;
+    padding: 0px;
+    margin: 0px;
+    background-color: #101b2e;
 }
 
 .mat-mdc-card-header .mat-mdc-card-actions {
@@ -116,10 +120,12 @@
 .shadow {
     box-shadow: 0px 1px 15px 1px rgba(69, 65, 78, 0.08);
 }
+
 .mat-mdc-card-actions {
     display: flex;
     justify-content: flex-end;
 }
-.mat-mdc-card-header-text{
+
+.mat-mdc-card-header-text {
     width: 100%;
 }

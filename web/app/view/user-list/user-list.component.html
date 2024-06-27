@@ -17,45 +17,67 @@
 
                 <ng-container matColumnDef="name">
                     <th mat-header-cell *matHeaderCellDef> Name </th>
-                    <td mat-cell *matCellDef="let element">
+                    <td mat-cell *matCellDef="let element" class="full-width">
                         {{element.name}}
                     </td>
                 </ng-container>
 
-                <ng-container matColumnDef="extra_networks">
-                    <th mat-header-cell *matHeaderCellDef> Extra Networks </th>
+                <ng-container matColumnDef="port_mappings">
+                    <th mat-header-cell *matHeaderCellDef> Port Mappings </th>
                     <td mat-cell *matCellDef="let element">
-                        @for (n of element.extra_networks; track n) {
-                        {{n}}
-                        }
+                        <mat-chip-set>
+                            @for (n of element.port_mappings; track n) {
+                            <mat-chip>{{n.bind_port}}->{{n.user_port}}</mat-chip>
+                            }
+                        </mat-chip-set>
+                    </td>
+                </ng-container>
+                <ng-container matColumnDef="sessions">
+                    <th mat-header-cell *matHeaderCellDef> Sessions </th>
+                    <td mat-cell *matCellDef="let element">
+                        <mat-chip-set>
+                            @for (n of element.sessions; track n) {
+                            <mat-chip>{{n.remote_ip}}->{{n.local_ip}}</mat-chip>
+                            }
+                        </mat-chip-set>
                     </td>
                 </ng-container>
                 <ng-container matColumnDef="role">
                     <th mat-header-cell *matHeaderCellDef> Role </th>
                     <td mat-cell *matCellDef="let element"> {{element.role}} </td>
                 </ng-container>
-                <ng-container matColumnDef="action">
+                <ng-container matColumnDef="download">
                     <th mat-header-cell *matHeaderCellDef> </th>
-                    <td mat-cell *matCellDef="let element;let i = index;">
-                        <div style="border:none" class="toggle-container">
-                            <button mat-button [matMenuTriggerFor]="menu">
-                                <mat-icon>keyboard_control</mat-icon>
+                    <td mat-cell *matCellDef="let element;let i = index;" class="mat-column-action">
+                        <button mat-button [matMenuTriggerFor]="menu">
+                            <mat-icon>download</mat-icon>
+                        </button>
+                        <mat-menu #menu="matMenu" xPosition="before">
+                            <button mat-menu-item (click)="donwloadConfig(element.id,'default')">
+                                <mat-icon>download</mat-icon> Computer
                             </button>
-                            <mat-menu #menu="matMenu" xPosition="before">
-                                <button mat-menu-item (click)="donwloadConfig(element.id)">
-                                    <mat-icon>download</mat-icon> Download
-                                </button>
-                                <button mat-menu-item [routerLink]="['edit',element.id]">
-                                    <mat-icon>edit</mat-icon> Edit
-                                </button>
-                                <button mat-menu-item (click)="onRemove(element)">
-                                    <mat-icon>delete</mat-icon> Delete
-                                </button>
-                            </mat-menu>
-                        </div>
+                            <button mat-menu-item (click)="donwloadConfig(element.id,'mobile')">
+                                <mat-icon>download</mat-icon> Mobile
+                            </button>
+                        </mat-menu>
                     </td>
                 </ng-container>
-
+                <ng-container matColumnDef="action">
+                    <th mat-header-cell *matHeaderCellDef> </th>
+                    <td mat-cell *matCellDef="let element;let i = index;" class="mat-column-action">
+                        <button mat-button [matMenuTriggerFor]="menu">
+                            <mat-icon>more_vert</mat-icon>
+                        </button>
+                        <mat-menu #menu="matMenu" xPosition="before">
+                            <button mat-menu-item [routerLink]="['edit',element.id]">
+                                <mat-icon>edit</mat-icon> Edit
+                            </button>
+                            <button mat-menu-item (click)="onRemove(element)">
+                                <mat-icon>delete</mat-icon> Delete
+                            </button>
+                        </mat-menu>
+                    </td>
+                </ng-container>
             </table>
             <mat-paginator [pageSizeOptions]="[5, 10, 20]" [length]="userPA.total_elements" [pageSize]="userPA.per_page"
                 showFirstLastButtons>

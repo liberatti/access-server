@@ -49,8 +49,8 @@ export class UserService extends APIService<User, string> {
         super(httpClient, storageService, "user");
     }
 
-    getConfig(user_id: string): Observable<Blob> {
-        return this.httpClient.get<Blob>(this.END_POINT + "/" + user_id + "/config",
+    getConfig(user_id: string, target: string): Observable<Blob> {
+        return this.httpClient.get<Blob>(this.END_POINT + "/" + user_id + "/config/" + target,
             { responseType: 'blob' as 'json' }
         );
     }

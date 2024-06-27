@@ -35,7 +35,7 @@ import { PolicyService } from 'web/app/services/policy.service';
 @Component({
   selector: 'app-policy-list',
   standalone: true,
-  imports: [RouterModule,CommonModule,
+  imports: [RouterModule, CommonModule,
     ReactiveFormsModule, TranslateModule,
     MatAutocompleteModule, MatMomentDateModule, MatCheckboxModule,
     MatSidenavModule, MatIconModule, MatButtonModule,
@@ -67,8 +67,10 @@ export class PolicyListComponent {
 
   updateGridTable() {
     this.policyService.get(this.policyPA).subscribe(data => {
-      this.dataSource = new MatTableDataSource(data.data);
-      this.policyPA.total_elements = data.metadata.total_elements;
+      if (data.metadata) {
+        this.dataSource = new MatTableDataSource(data.data);
+        this.policyPA.total_elements = data.metadata.total_elements;
+      }
     });
   }
 

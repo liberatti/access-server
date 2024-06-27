@@ -54,7 +54,7 @@ class FirewallTool:
 
     @classmethod
     def refresh_user_chain(cls, user_id):
-        logger.debug(f"Refresh {user_id} chain")
+        logger.info(f"Refresh {user_id} chain")
 
         model = UserPolicyDao()
         s_model = VPNSessionDao(connection=model.connection)
@@ -83,7 +83,6 @@ class FirewallTool:
                                         -j p_{p['id']}""",
                         shell=True,
                         check=True,
-                        stderr=subprocess.DEVNULL,
                     )
             m_model = PortMappingDao(connection=model.connection)
             mappings = m_model.get_by_user_id(user_id)

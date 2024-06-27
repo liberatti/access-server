@@ -3,6 +3,7 @@ from flask import Blueprint, request
 from flask_jwt_extended import create_access_token, get_jwt
 from marshmallow import ValidationError
 from api.model.user_model import PortMappingDao, UserDao
+from api.model.vpn_model import VPNSessionDao
 from api.utils import has_any_authority, logger
 from api.tools.vpn_tool import VPNTool
 from api.tools.response_builder import ResponseBuilder
@@ -43,7 +44,10 @@ def get():
     else:
         result = model.query_all()
     if result["metadata"]["total_pages"] > 0:
+        sessionDao = VPNSessionDao()
         for r in result["data"]:
+            sessions = sessionDao.get_all_by_user_id(r["id"])
+            r.update({"sessions": sessions})
             r.pop("password")
         return ResponseBuilder.data(result)
     else:
@@ -107,12 +111,12 @@ def delete(user_id):
     return response
 
 
-@routes.route("/<user_id>/config", methods=["GET"])
+@routes.route("/<user_id>/config/<target>", methods=["GET"])
 @has_any_authority(["user", "admin"])
-def get_config_by_id(user_id):
+def get_config_by_id(user_id, target):
     user = UserDao().get_by_id(user_id)
     if user:
-        config = VPNTool.get_openvpn_client(user_id)
+        config = VPNTool.get_openvpn_client(user_id,target)
         return ResponseBuilder.raw(
             config, headers={"Content-Type": "text/plain; charset=utf-8"}
         )

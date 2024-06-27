@@ -80,6 +80,7 @@ class VPNTool:
                 for p in policies:
                     FirewallTool.refresh_policy_chain(p["id"])
         model.close()
+
     @classmethod
     def is_active(cls):
         try:
@@ -133,13 +134,24 @@ class VPNTool:
     @classmethod
     def start_service(cls, wait=True):
         logger.info(f"Starting server")
-        chmod_r("data",0o777,recursive=True)
+
+        daoSession = VPNSessionDao()
+        daoSession.delete_all()
+        daoSession.commit()
+
+        daoUser = UserDao()
+        user_page = daoUser.query_all()
+        if "data" in user_page:
+            for u in user_page["data"]:
+                FirewallTool.refresh_user_chain(u["id"])
+
+        chmod_r("data", 0o777, recursive=True)
         with open(f"data/config.json", "r") as a:
             config = json.loads(a.read())
             cls.__create_server(config)
         if not os.path.exists(f"logs"):
             os.mkdir(f"logs")
-        
+
         subprocess.Popen(
             f"openvpn --config server.conf --log logs/server.log --writepid server.pid",
             shell=True,
@@ -177,7 +189,7 @@ class VPNTool:
             f"client-connect openvpn-adapter.py",
             f"client-disconnect openvpn-adapter.py",
             f"crl-verify {PKITool.pki_dir}/crl.pem",
-            f"management 127.0.0.1 23000"
+            f"management 127.0.0.1 23000",
         ]
         if "networks" in config:
             for r in config["networks"]:
@@ -203,7 +215,7 @@ class VPNTool:
                 FirewallTool.refresh_policy_chain(p["id"])
 
     @classmethod
-    def get_openvpn_client(cls, user_id):
+    def get_openvpn_client(cls, user_id, target="default"):
         model = UserDao()
         with open(f"data/config.json", "r") as a:
             config = json.loads(a.read())
@@ -225,15 +237,11 @@ class VPNTool:
             "dev tun",
             "proto tcp",
             f"remote {config['public_address']} {config['public_port']}",
-            "resolv-retry infinite",
             "nobind",
-            "persist-key",
-            "persist-tun",
             "remote-cert-tls server",
             "auth SHA512",
             "verb 3",
             "keepalive 10 60",
-            "ping-timer-rem",
             "auth-user-pass",
             "<tls-crypt>",
             tls_key,
@@ -248,6 +256,12 @@ class VPNTool:
             cli_key,
             "</key>",
         ]
+
+        if "default" in target:
+            cli_config.append("persist-key")
+            cli_config.append("persist-tun")
+            cli_config.append("resolv-retry infinite")
+            cli_config.append("ping-timer-rem")
 
         user = model.get_by_id(user_id)
         if "policies" in user:

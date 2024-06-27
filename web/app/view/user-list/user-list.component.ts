@@ -35,6 +35,7 @@ import { FileSaverModule, FileSaverService } from 'ngx-filesaver';
 @Component({
     selector: 'app-user-list',
     templateUrl: './user-list.component.html',
+    styleUrl: './user-list.component.css',
     standalone: true,
     imports: [RouterModule,
         ReactiveFormsModule, TranslateModule, FileSaverModule,
@@ -47,7 +48,7 @@ import { FileSaverModule, FileSaverService } from 'ngx-filesaver';
     ],
 })
 export class UserListComponent implements OnInit, AfterViewInit {
-    userDC: string[] = ['name', 'extra_networks', 'role', 'action'];
+    userDC: string[] = ['name', 'port_mappings', 'sessions', 'role', 'download','action'];
     userDS: MatTableDataSource<never>;
     userPA = new DefaultPageMeta();
 
@@ -68,8 +69,10 @@ export class UserListComponent implements OnInit, AfterViewInit {
     }
     updateGridTable() {
         this.userService.get(this.userPA).subscribe(data => {
-            this.userDS = new MatTableDataSource(data.data);
-            this.userPA.total_elements = data.metadata.total_elements;
+            if (data.metadata) {
+                this.userDS = new MatTableDataSource(data.data);
+                this.userPA.total_elements = data.metadata.total_elements;
+            }
         });
     }
 
@@ -80,8 +83,8 @@ export class UserListComponent implements OnInit, AfterViewInit {
     }
 
 
-    donwloadConfig(user_id: string) {
-        this.userService.getConfig(user_id).subscribe(data => {
+    donwloadConfig(user_id: string,target:string) {
+        this.userService.getConfig(user_id,target).subscribe(data => {
             this.fileSaver.save(data, "client.ovpn");
         });
     }
