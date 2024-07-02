@@ -1,0 +1,25 @@
+<mat-card>
+  <mat-card-content>
+    <h2 mat-dialog-title>Add Port Mapping</h2>
+    <mat-dialog-content>
+      <form [formGroup]="form">
+        <mat-form-field class="w-100">
+          <mat-label>user_port</mat-label>
+          <input id="user.user_port" matInput formControlName="user_port">
+        </mat-form-field>
+        <mat-form-field class="w-100">
+          <mat-label>bind_port</mat-label>
+          <input id="user.bind_port" matInput formControlName="bind_port">
+        </mat-form-field>
+        <mat-form-field class="w-100">
+          <mat-label>protocol</mat-label>
+          <input id="user.protocol" matInput formControlName="protocol">
+        </mat-form-field>
+      </form>
+    </mat-dialog-content>
+    <mat-dialog-actions>
+      <button mat-raised-button (click)="onDismiss()">No</button>
+      <button mat-raised-button color="warn" (click)="onConfirm()" cdkFocusInitial>Ok</button>
+    </mat-dialog-actions>
+  </mat-card-content>
+</mat-card>

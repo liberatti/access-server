@@ -1,0 +1,48 @@
+{
+  "aboutMessage": "Thanks",
+  "actions": {
+    "create": "Create",
+    "edit": "Edit",
+    "remove": "Remove",
+    "search": "Search",
+    "export": "Export",
+    "save": "Save"
+  },
+  "attr": {
+    "name": "Name",
+    "domains": "Domain List",
+    "routes": "Routes",
+    "active": "Active",
+    "login": {
+      "username": "Enter your user name",
+      "password": "Password here"
+    },
+    "service": {},
+    "upstream": {}
+  },
+  "nav": {
+    "services": "Services",
+    "upstreams": "Upstreams",
+    "sensors": "Sensors",
+    "about": "About",
+    "dashboard": "Dashboards",
+    "system": "System",
+    "events": "Event",
+    "hostnames": "Hostnames",
+    "certificates": "Certificates",
+    "dictionaries": "Dictionaries",
+    "gateway": "Gateway",
+    "transactions":"Transactions"
+  },
+  "format": {
+    "parse": {
+      "dateInput": "YYYY-MM-DDTHH:mm:ss.SSSZ"
+    },
+    "display": {
+      "datetime": "DD/MM/YYYY HH:mm:ss",
+      "monthYearLabel": "MMM YYYY",
+      "dateA11yLabel": "LL",
+      "monthYearA11yLabel": "MMMM YYYY"
+    }
+  }
+}

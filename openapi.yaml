@@ -1,0 +1,140 @@
+openapi: "3.0.2"
+info:
+  title: VPN
+  version: "1.0"
+  license:
+    name: Apache 2.0
+    url: http://www.apache.org/licenses/LICENSE-2.0.html
+servers:
+  - url: http://localhost:5000/api
+externalDocs:
+  description: Find out more
+  url: https://tooka.com.br
+tags:
+  - name: Users
+    description: Everything about your users
+components:
+  securitySchemes:
+    Bearer:
+      description: For this sample, you can use the user key `Bearer JWT` to test the authorization filters.
+      type: apiKey
+      name: Authorization
+      in: header
+  responses:
+    UnauthorizedError:
+      description: API key is missing or invalid
+  schemas:
+    User:
+      type: object
+      properties:
+        name:
+          type: string
+        role:
+          type: string
+        username:
+          type: string
+        password:
+          type: string
+    UserArray:
+      type: object
+      properties:
+        schema:
+          type: array
+          items:
+            $ref: "#/components/schemas/User"
+    UserLogin:
+      type: object
+      properties:
+        username:
+          type: string
+          example: admin
+        password:
+          type: string
+          example: admin
+    AccessToken:
+      type: object
+      properties:
+        access_token:
+          type: string
+        token_type:
+          type: string
+paths:
+  /user/login:
+    post:
+      tags:
+        - Users
+      summary: Authenticate User
+      description: User login
+      operationId: User.login
+      requestBody:
+        description: Optional description in *Markdown*
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: "#/components/schemas/UserLogin"
+
+      responses:
+        "200":
+          description: OK
+        '401':
+           $ref: "#/components/responses/UnauthorizedError"
+  /user:
+    post:
+      tags:
+        - Users
+      summary: Create an user
+      description: Optional extended description in CommonMark or HTML.
+      operationId: User.create
+      requestBody:
+        description: Optional description in *Markdown*
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: "#/components/schemas/User"
+      responses:
+        "200":
+          description: OK
+        '401':
+           $ref: "#/components/responses/UnauthorizedError"
+      security:
+        - Bearer: []
+  /user?page=1&size=10:
+    get:
+      parameters:
+        - in: query
+          name: size
+          required: false
+          schema:
+            type: integer
+          description: The number of items to collect the result set
+        - in: query
+          name: page
+          required: false
+          schema:
+            type: integer
+      tags:
+        - Users
+      summary: List user
+      description: Optional extended description in CommonMark or HTML.
+      operationId: User.list
+      responses:
+        "200":
+          description: successful operation
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/UserArray"
+              examples:
+                default:
+                  summary: Basic User
+                  value:
+                    - name: 'Administrator'
+                      username: 'admin'
+                      role: 'admin'
+        '401':
+           $ref: "#/components/responses/UnauthorizedError"
+      security:
+        - Bearer: []
+

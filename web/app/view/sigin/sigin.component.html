@@ -1,0 +1,37 @@
+<ng-container>
+    <form [formGroup]="form" id="login-form">
+        <mat-card class="login-card">
+            <mat-card-header>
+                <mat-card-title>Login</mat-card-title>
+            </mat-card-header>
+            <mat-card-content>
+                <mat-form-field class="w-100">
+                    <input id="username" matInput placeholder="Email" formControlName="username" autocomplete="username"
+                        type="text">
+                </mat-form-field>
+                <mat-form-field class="w-100">
+                    <input id="password" matInput placeholder="Password" formControlName="password" type="password"
+                        autocomplete="current-password">
+                </mat-form-field>
+
+                <mat-form-field class="w-100">
+                    <mat-label>Locale</mat-label>
+                    <mat-select formControlName="locale">
+                        @for (l of locales; track l) {
+                        <mat-option [value]="l.id">
+                            {{l.name}}
+                        </mat-option>
+                        }
+                    </mat-select>
+                </mat-form-field>
+
+            </mat-card-content>
+
+            <mat-card-actions>
+                <button mat-raised-button id="login" color="primary" (click)="login()">Login</button>
+                <button mat-button id="resetPassword" (click)="resetPassword()" type="button">Reset
+                    Password</button>
+            </mat-card-actions>
+        </mat-card>
+    </form>
+</ng-container>
