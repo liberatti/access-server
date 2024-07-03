@@ -24,7 +24,7 @@ RUN wget https://github.com/OpenVPN/easy-rsa/releases/download/v$EASYRSA_VERSION
  && chown -R root:root easy-rsa
 
 ADD requirements.txt .
-RUN pip3 install -U pip setuptools wheel\
+RUN pip3 install -U pip setuptools>=65.5.1 wheel\
  && pip3 install -r requirements.txt
 
 ADD api api
