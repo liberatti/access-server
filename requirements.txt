@@ -7,3 +7,4 @@ bcrypt
 multidict
 psutil
 schedule
+gunicorn

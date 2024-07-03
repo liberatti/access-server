@@ -4,7 +4,7 @@ import sqlite3
 from datetime import datetime
 from flask import json
 from api.utils import logger, gen_random_string
-
+from config import main_path
 
 class SQLiteDAO:
 
@@ -14,7 +14,7 @@ class SQLiteDAO:
 
         if connection is None:
             logger.debug(f"Create Session {type(self)}")
-            self.__connection = sqlite3.connect(f"data/admin.db", timeout=60)
+            self.__connection = sqlite3.connect(f"{main_path}/data/admin.db", timeout=60)
         else:
             logger.debug(f"Reuse Session {type(self)}")
             self.__connection = connection

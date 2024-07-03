@@ -14,7 +14,7 @@ from flask_jwt_extended import (
 )
 import schedule
 from flask_cors import CORS
-from api.utils import handle_sigterm, ma, gen_random_string,chmod_r
+from api.utils import handle_sigterm, ma, gen_random_string, chmod_r
 from api.controller.user_controller import routes as user_routes
 from api.controller.server_controller import routes as server_routes
 from api.controller.policy_controller import routes as policy_routes
@@ -27,6 +27,7 @@ from api.model.user_model import (
     PortMappingDao,
 )
 from api.model.vpn_model import VPNSessionDao
+from config import main_path
 
 app = Flask(__name__)
 
@@ -76,8 +77,9 @@ def _scheduler():
 
 
 def create_db():
-    if not os.path.exists(f"data"):
-        os.mkdir(f"data")
+    app.logger.info(f"Create database on {main_path}/data")
+    if not os.path.exists(f"{main_path}/data"):
+        os.mkdir(f"{main_path}/data")
     UserDao().create_schema()
     PolicyDao().create_schema()
     PolicyClientDao().create_schema()
@@ -85,8 +87,7 @@ def create_db():
     PortMappingDao().create_schema()
     VPNSessionDao().create_schema()
 
-
-if __name__ == "__main__":
+def create_app(**args):
     schedule.every().day.at("01:00").do(VPNTool.update_crl)
     schedule.every(5).seconds.do(VPNTool.session_monitor)
 
@@ -96,11 +97,12 @@ if __name__ == "__main__":
     )
     scheduler_thread.start()
 
-    if not os.path.exists(f"data/admin.db"):
+    if not os.path.exists(f"{main_path}/data/admin.db"):
         create_db()
 
     if VPNTool.is_initialized():
         FirewallTool.create_firewall()
         VPNTool.start_service(wait=False)
-
-    app.run(host="0.0.0.0")
+    return app
+#if __name__ == "__main__":
+#    app.run(host="0.0.0.0")
