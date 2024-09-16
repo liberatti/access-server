@@ -1,0 +1,53 @@
+.login-card {
+    background-color: #f5f5f5;
+    padding: 20px;
+    border-radius: 5px;
+    box-shadow: 0px 0px 10px rgba(0, 0, 0, 0.1);
+    max-width: 350px;
+}
+
+.full-width {
+    width: 100%;
+}
+
+.login-background {
+    background: #0088c1 url(/assets/login-bg.png) 0 0 / cover no-repeat;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    height: 100vh;
+    margin: 0;
+}
+
+.login-background::before {
+    position: absolute;
+    left: 0;
+    top: 0;
+    width: 100%;
+    min-height: 100%;
+    overflow: auto;
+    display: flex;
+    flex-direction: column;
+}
+.loading-box{
+    text-align: center;
+}
+.spinner {
+    border: 2px solid #f3f3f3;
+    border-top: 2px solid #3498db;
+    border-radius: 50%;
+    width: 32px;
+    height: 32px;
+    animation: spin 2s linear infinite;
+    display: inline-block;
+}
+
+@keyframes spin {
+    0% {
+        transform: rotate(0deg);
+    }
+
+    100% {
+        transform: rotate(360deg);
+    }
+}

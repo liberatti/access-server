@@ -1,0 +1,183 @@
+/*
+html{
+    --mdc-filled-text-field-label-text-size:12px;
+    --mat-form-field-container-height: 24px;
+    --mat-form-field-filled-with-label-container-padding-top: 8px;
+    --mat-form-field-filled-with-label-container-padding-bottom: 8px;
+}
+*/
+
+/* You can add global styles to this file, and also import other style files */
+.mat-app-background {
+    margin: 0px;
+    padding: 0px;
+}
+
+.mat-toolbar.mat-primary {
+    --mat-toolbar-container-background-color: #0088c1;
+    --mat-toolbar-container-text-color: #eee;
+    box-shadow: 0 1px 1px -1px #98a2b34d, 0 1px 5px -2px #0088c1;
+}
+
+.full-width {
+    width: 100%;
+}
+
+.full-width-children>* {
+    width: 100%;
+}
+
+.align-right {
+    justify-content: right;
+    text-align: right;
+}
+
+.align-left {
+    width: 100%;
+    justify-content: left;
+}
+
+.mt-2 {
+    margin-top: 2em;
+}
+
+.chip-small {
+    padding: 0 8px;
+    min-height: 20px;
+    font-size: 12px;
+}
+
+.toggle-container {
+    display: flex;
+    align-items: center;
+    height: 100%;
+}
+
+
+.table-cell-actions .toggle-container {
+    justify-content: end;
+}
+
+.table-cell-actions {
+    text-align: right !important;
+}
+
+.mat-mdc-card-header .mat-mdc-card-actions {
+    margin-left: auto;
+}
+
+.break-word {
+    white-space: pre-wrap;
+    width: 48ch;
+    overflow-wrap: break-word;
+    word-break: break-word;
+}
+
+/*
+
+.row {
+    display: grid;
+    grid-template-columns: repeat(12, 1fr);
+    width: 100%;
+}
+
+[class^="col"] {
+    grid-column: span 12;
+    width: 100%;
+}
+
+.col-lg-12 {
+    grid-column: span 12;
+}
+
+.col-lg-6 {
+    grid-column: span 6;
+}
+
+.col-lg-4 {
+    grid-column: span 4;
+}
+
+@media (max-width: 768px) {
+    .col-sm-6 {
+        grid-column: span 6;
+    }
+
+    .col-sm-12 {
+        grid-column: span 12;
+
+    }
+}
+*/
+.mat-row {
+    display: flex;
+}
+
+.mat-col-4 {
+    flex: 0 0 33.33%;
+    max-width: 33.33%;
+    box-sizing: border-box;
+}
+
+.mat-col-3 {
+    flex: 0 0 25%;
+    max-width: 25%;
+    box-sizing: border-box;
+}
+
+.mat-col-6 {
+    flex: 0 0 50%;
+    max-width: 50%;
+    box-sizing: border-box;
+}
+
+.mat-col-9 {
+    flex: 0 0 75%;
+    max-width: 75%;
+    box-sizing: border-box;
+}
+
+.mat-col-12 {
+    flex: 1 0 100%;
+    max-width: 100%;
+    box-sizing: border-box;
+}
+
+.mat-expanded-row{
+    flex: 1 1 auto;
+}
+.inline-form-fields {
+    display: flex;
+    align-items: flex-start;
+}
+
+.disabled-select {
+    pointer-events: none;
+}
+
+@media only screen and (max-width: 800px) {
+    .mat-row {
+        flex-direction: column;
+    }
+
+    .mat-col-4,
+    .mat-col-3,
+    .mat-col-6,
+    .mat-col-9 {
+        flex: 1 0 100%;
+        max-width: 100%;
+    }
+}
+
+.shadow {
+    box-shadow: 0px 1px 15px 1px rgba(69, 65, 78, 0.08);
+}
+
+.mat-mdc-card-actions {
+    display: flex;
+    justify-content: flex-end;
+}
+
+.mat-mdc-card-header-text {
+    width: 100%;
+}
