@@ -10,9 +10,12 @@ import { JwtInterceptor } from './interceptors/jwt.interceptor';
 export function HttpLoaderFactory(http: HttpClient) {
   return new TranslateHttpLoader(http, './assets/i18n/', '.json');
 }
+export const REST_API_URL = new InjectionToken<string>('REST_API_URL');
 
 export const appConfig: ApplicationConfig = {
   providers: [
+    { provide: REST_API_URL, useValue: "http://localhost:5000/api" },
+    //{ provide: 'REST_API_URL', useValue: "" },
     provideRouter(routes, withHashLocation()),
     provideAnimationsAsync(),
     provideHttpClient(

@@ -1,6 +1,4 @@
-import { Inject, Injectable } from '@angular/core';
-import { HttpClient } from '@angular/common/http';
-import { LocalStorageService } from 'web/app/services/localstorage.service';
+import { Injectable, Injector } from '@angular/core';
 import { Observable } from 'rxjs';
 import { APIService } from './api.service';
 import { PortMappingModel, User } from '../models/security';
@@ -10,13 +8,10 @@ import { ServerConfig } from '../models/shared';
     providedIn: 'root'
 })
 export class ServerService extends APIService<ServerConfig, string> {
-    constructor(
-        httpClient: HttpClient,
-        storageService: LocalStorageService,
-        @Inject('REST_API_URL') REST_API_URL: string
-    ) {
-        super(httpClient, storageService, `${REST_API_URL}/server`);
+    constructor(protected override injector: Injector) {
+        super(injector, 'server')
     }
+
     getStatus(): Observable<ServerConfig> {
         return this.httpClient.get<ServerConfig>(this.END_POINT + "/status");
     }
@@ -29,12 +24,8 @@ export class ServerService extends APIService<ServerConfig, string> {
     providedIn: 'root'
 })
 export class PortMappingService extends APIService<PortMappingModel, string> {
-    constructor(
-        httpClient: HttpClient,
-        storageService: LocalStorageService,
-        @Inject('REST_API_URL') REST_API_URL: string
-    ) {
-        super(httpClient, storageService, `${REST_API_URL}/server/port_map`);
+    constructor(protected override injector: Injector) {
+        super(injector, 'server/port_map')
     }
 }
 
@@ -43,13 +34,8 @@ export class PortMappingService extends APIService<PortMappingModel, string> {
 })
 export class UserService extends APIService<User, string> {
 
-
-    constructor(
-        httpClient: HttpClient,
-        storageService: LocalStorageService,
-        @Inject('REST_API_URL') REST_API_URL: string
-    ) {
-        super(httpClient, storageService, `${REST_API_URL}/user`);
+    constructor(protected override injector: Injector) {
+        super(injector, 'user')
     }
 
     getConfig(user_id: string, target: string): Observable<Blob> {
@@ -64,13 +50,8 @@ export class UserService extends APIService<User, string> {
 })
 export class AuthService extends APIService<User, string> {
 
-    constructor(
-        httpClient: HttpClient,
-        storageService: LocalStorageService,
-        @Inject('REST_API_URL') REST_API_URL: string
-    ) {
-        super(httpClient, storageService, `${REST_API_URL}/user`);
-
+    constructor(protected override injector: Injector) {
+        super(injector, 'user')
     }
 
     login(data: User): Observable<any> {

@@ -1,21 +1,26 @@
 import { HttpClient, HttpParams } from '@angular/common/http';
-import { Inject, Injectable } from '@angular/core';
+import { Injectable, Injector } from '@angular/core';
 import { Observable } from 'rxjs';
 import { APIOperations, Page, PageMeta } from '../models/shared';
 import { LocalStorageService } from './localstorage.service';
+import { REST_API_URL } from '../app.config';
 
 @Injectable({
     providedIn: 'root'
 })
 export abstract class APIService<T, ID> implements APIOperations<T, ID> {
     protected readonly END_POINT: string;
+    protected httpClient: HttpClient;
+    protected storageService: LocalStorageService;
 
     constructor(
-        protected httpClient: HttpClient,
-        protected storageService: LocalStorageService,
-        protected P_END_POINT: string
+        protected injector: Injector,
+        protected ctx: string
     ) {
-        this.END_POINT = P_END_POINT;
+        const _REST_API_URL = injector.get(REST_API_URL)
+        this.httpClient = this.injector.get(HttpClient)
+        this.storageService = this.injector.get(LocalStorageService)
+        this.END_POINT = `${_REST_API_URL}/${ctx}`;
     }
 
     get(pagging?: PageMeta): Observable<Page> {

@@ -1,6 +1,6 @@
-import { Component, OnInit } from '@angular/core';
+import { Component, InjectionToken } from '@angular/core';
 import { HashLocationStrategy, LocationStrategy } from '@angular/common';
-import { Router, RouterOutlet } from '@angular/router';
+import { RouterOutlet } from '@angular/router';
 import { LoadingService } from './services/loading.service';
 import { LocalStorageService } from './services/localstorage.service';
 import { AuthService, PortMappingService, ServerService, UserService } from './services/security.service';
@@ -14,8 +14,6 @@ import { PolicyService } from 'web/app/services/policy.service';
   imports: [RouterOutlet],
   template: '<router-outlet></router-outlet>',
   providers: [
-    //{ provide: 'REST_API_URL', useValue: "http://localhost:5000/api" },
-    { provide: 'REST_API_URL', useValue: "" },
     { provide: LocationStrategy, useClass: HashLocationStrategy },
     { provide: 'LOCALSTORAGE', useValue: window.localStorage },
     AuthService, UserService, PolicyService, NotificationService, LocalStorageService,

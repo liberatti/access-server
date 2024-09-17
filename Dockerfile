@@ -13,7 +13,7 @@ FROM rockylinux:9 as main
 WORKDIR /opt/access-server
 
 RUN dnf -y install epel-release \
-    && dnf -y install git wget openvpn kmod iptables python3.12 python3.12-pip python3.12-setuptools gcc python3.12-devel\
+    && dnf -y install git wget openvpn kmod ipset iptables python3.12 python3.12-pip python3.12-setuptools gcc python3.12-devel\
     && dnf clean all
 
 ENV EASYRSA_VERSION 3.1.7
