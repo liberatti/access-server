@@ -29,12 +29,12 @@ import { ConfirmDialogComponent } from 'web/app/components/confirm-dialog/confir
 import { User } from 'web/app/models/security';
 import { DefaultPageMeta } from 'web/app/models/shared';
 import { NotificationService } from 'web/app/services/notification.service';
-import { UserService } from 'web/app/services/security.service';
 import { FileSaverModule, FileSaverService } from 'ngx-filesaver';
+import { DMZServiceService } from 'web/app/services/dmz.service';
 
 @Component({
-    selector: 'app-user-list',
-    templateUrl: './user-list.component.html',
+    selector: 'app-dmz-service-list',
+    templateUrl: './dmz-service-list.component.html',
     standalone: true,
     imports: [RouterModule,
         ReactiveFormsModule, TranslateModule, FileSaverModule,
@@ -46,18 +46,17 @@ import { FileSaverModule, FileSaverService } from 'ngx-filesaver';
         MatStepperModule, MatRadioModule, MatFormFieldModule, MatGridListModule
     ],
 })
-export class UserListComponent implements OnInit, AfterViewInit {
-    userDC: string[] = ['name', 'sessions', 'role', 'action'];
-    userDS: MatTableDataSource<never>;
-    userPA = new DefaultPageMeta();
+export class DmzServiceListComponent implements OnInit, AfterViewInit {
+    dmzDC: string[] = ['name', 'port_mappings', 'action'];
+    dmzDS: MatTableDataSource<never>;
+    dmzPA = new DefaultPageMeta();
 
     constructor(
         private notificationService: NotificationService,
-        private userService: UserService,
-        private confirmDialog: MatDialog,
-        private fileSaver: FileSaverService
+        private dmzService: DMZServiceService,
+        private confirmDialog: MatDialog
     ) {
-        this.userDS = new MatTableDataSource<never>;
+        this.dmzDS = new MatTableDataSource<never>;
 
     }
 
@@ -67,30 +66,24 @@ export class UserListComponent implements OnInit, AfterViewInit {
     ngAfterViewInit() {
     }
     updateGridTable() {
-        this.userService.get(this.userPA).subscribe(data => {
+        this.dmzService.get(this.dmzPA).subscribe(data => {
             if (data.metadata) {
-                this.userDS = new MatTableDataSource(data.data);
-                this.userPA.total_elements = data.metadata.total_elements;
+                this.dmzDS = new MatTableDataSource(data.data);
+                this.dmzPA.total_elements = data.metadata.total_elements;
             }
         });
     }
 
     nextPage(event: any) {
-        this.userPA.page = event.pageIndex + 1;
-        this.userPA.per_page = event.pageSize;
+        this.dmzPA.page = event.pageIndex + 1;
+        this.dmzPA.per_page = event.pageSize;
         this.updateGridTable();
     }
 
-
-    donwloadConfig(user_id: string, target: string) {
-        this.userService.getConfig(user_id, target).subscribe(data => {
-            this.fileSaver.save(data, "client.ovpn");
-        });
-    }
     onSave() {
-        this.userService.get(this.userPA).subscribe(data => {
-            this.userDS = new MatTableDataSource(data.data);
-            this.userPA.total_elements = data.metadata.total_elements;
+        this.dmzService.get(this.dmzPA).subscribe(data => {
+            this.dmzDS = new MatTableDataSource(data.data);
+            this.dmzPA.total_elements = data.metadata.total_elements;
         });
         console.log("onSave");
     }
@@ -102,12 +95,15 @@ export class UserListComponent implements OnInit, AfterViewInit {
         dialogRef.afterClosed().subscribe(result => {
             // accepted
             if (result && dto.id) {
-                this.userService.removeById(dto.id).subscribe(data => {
+                this.dmzService.removeById(dto.id).subscribe(data => {
                     this.updateGridTable();
                     this.notificationService.openSnackBar('User removed');
                 });
             }
         });
     }
+
+
+
 
 }

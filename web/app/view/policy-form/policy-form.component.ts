@@ -12,7 +12,7 @@ import { MatSelectModule } from '@angular/material/select';
 import { MatTooltipModule } from '@angular/material/tooltip';
 import { ActivatedRoute, Router, RouterModule } from '@angular/router';
 import { TranslateModule } from '@ngx-translate/core';
-import { PolicyModel, User } from 'web/app/models/security';
+import { AccessPolicy, User } from 'web/app/models/security';
 import { FilterByPropertyPipe } from 'web/app/pipes/filter_by_property.pipe';
 import { NotificationService } from 'web/app/services/notification.service';
 import { PolicyService } from 'web/app/services/policy.service';
@@ -86,10 +86,9 @@ export class PolicyFormComponent implements OnInit {
     if (this.form.status === "INVALID") {
       return;
     }
-    const formData = this.form.value as PolicyModel;
+    const formData = this.form.value as AccessPolicy;
     if (this.isAddMode) {
       Reflect.deleteProperty(formData, 'id');
-      console.log(formData);
       this.policyService.save(formData).subscribe(() => {
         this.notificationService.openSnackBar('Policy saved');
         this.router.navigate(['/policy']);

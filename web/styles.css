@@ -6,6 +6,9 @@ html{
     --mat-form-field-filled-with-label-container-padding-bottom: 8px;
 }
 */
+* {
+    box-sizing: border-box;
+}
 
 /* You can add global styles to this file, and also import other style files */
 .mat-app-background {
@@ -73,79 +76,81 @@ html{
     word-break: break-word;
 }
 
-/*
-
-.row {
-    display: grid;
-    grid-template-columns: repeat(12, 1fr);
-    width: 100%;
-}
-
-[class^="col"] {
-    grid-column: span 12;
-    width: 100%;
-}
-
-.col-lg-12 {
-    grid-column: span 12;
-}
-
-.col-lg-6 {
-    grid-column: span 6;
-}
-
-.col-lg-4 {
-    grid-column: span 4;
-}
-
-@media (max-width: 768px) {
-    .col-sm-6 {
-        grid-column: span 6;
-    }
-
-    .col-sm-12 {
-        grid-column: span 12;
-
-    }
-}
-*/
 .mat-row {
     display: flex;
 }
 
-.mat-col-4 {
-    flex: 0 0 33.33%;
-    max-width: 33.33%;
-    box-sizing: border-box;
-}
-
 .mat-col-3 {
+    display: flex;
+    flex-direction: column;
+    justify-content: flex-start;
     flex: 0 0 25%;
     max-width: 25%;
     box-sizing: border-box;
+    margin-right: 5px;
+}
+
+.mat-col-4 {
+    display: flex;
+    flex-direction: column;
+    justify-content: flex-start;
+    flex: 0 0 33.33%;
+    max-width: 33.33%;
+    box-sizing: border-box;
+    margin-right: 5px;
 }
 
 .mat-col-6 {
+    display: flex;
+    flex-direction: column;
+    justify-content: flex-start;
     flex: 0 0 50%;
     max-width: 50%;
     box-sizing: border-box;
+    margin-right: 5px;
+}
+
+.mat-col-3:last-child,
+.mat-col-4:last-child,
+.mat-col-6:last-child,
+.mat-col-9:last-child {
+    margin-right: 0;
+}
+
+/* Fix mat-card margin when inside cols*/
+.mat-col-3:last-child mat-card,
+.mat-col-6:last-child mat-card,
+.mat-col-9:last-child mat-card {
+    margin-right: 5px;
+}
+
+.no-wrap {
+    text-wrap: nowrap;
 }
 
 .mat-col-9 {
+    display: flex;
+    flex-direction: column;
+    justify-content: flex-start;
     flex: 0 0 75%;
     max-width: 75%;
     box-sizing: border-box;
+    margin-right: 5px;
 }
 
 .mat-col-12 {
+    display: flex;
+    flex-direction: column;
+    justify-content: flex-start;
     flex: 1 0 100%;
     max-width: 100%;
     box-sizing: border-box;
 }
 
-.mat-expanded-row{
+.mat-expanded-row {
     flex: 1 1 auto;
 }
+
 .inline-form-fields {
     display: flex;
     align-items: flex-start;
@@ -166,6 +171,7 @@ html{
     .mat-col-9 {
         flex: 1 0 100%;
         max-width: 100%;
+        margin-right: 5px;
     }
 }
 
@@ -180,4 +186,25 @@ html{
 
 .mat-mdc-card-header-text {
     width: 100%;
+}
+
+/*
+.mat-column-action {
+    justify-content: end;
+    padding: 0px;
+    margin: 0px;
+}
+    */
+
+.button-group {
+    display: flex;
+    align-items: center;
+}
+
+.button-group button {
+    margin-right: 2px;
+}
+
+.button-group button:last-child {
+    margin-right: 0;
 }

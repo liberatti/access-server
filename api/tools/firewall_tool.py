@@ -1,9 +1,9 @@
 import subprocess
 from api.utils import logger
-from api.model.user_model import UserPolicyDao, PortMappingDao
+from api.model.user_model import UserPolicyDao
 from api.model.policy_model import PolicyDao
 from api.model.vpn_model import VPNSessionDao
-
+from api.model.dmz_model import PortMappingDao
 
 class FirewallTool:
 

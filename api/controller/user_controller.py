@@ -2,7 +2,7 @@ import bcrypt
 from flask import Blueprint, request
 from flask_jwt_extended import create_access_token, get_jwt
 from marshmallow import ValidationError
-from api.model.user_model import PortMappingDao, UserDao
+from api.model.user_model import  UserDao
 from api.model.vpn_model import VPNSessionDao
 from api.utils import has_any_authority, logger
 from api.tools.vpn_tool import VPNTool
@@ -95,9 +95,6 @@ def delete(user_id):
     response = None
     try:
         result = model.delete_by_id(user_id)
-        if result:
-            daoMapping = PortMappingDao(connection=model.connection)
-            daoMapping.delete_by_user(user_id)
         model.commit()
 
         VPNTool.remove_client(user_id)

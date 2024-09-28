@@ -18,15 +18,12 @@ from api.utils import handle_sigterm, ma, gen_random_string, chmod_r
 from api.controller.user_controller import routes as user_routes
 from api.controller.server_controller import routes as server_routes
 from api.controller.policy_controller import routes as policy_routes
+from api.controller.dmz_controller import routes as dmz_routes
+
 from config import JWT_EXPIRATION_DELTA
 from api.tools.vpn_tool import FirewallTool, VPNTool
-from api.model.policy_model import PolicyClientDao, PolicyDao
-from api.model.user_model import (
-    UserPolicyDao,
-    UserDao,
-    PortMappingDao,
-)
-from api.model.vpn_model import VPNSessionDao
+
+from cli import create_db
 from config import main_path
 
 app = Flask(__name__)
@@ -66,6 +63,8 @@ app.register_blueprint(bp, url_prefix="/")
 app.register_blueprint(user_routes, url_prefix="/api/user")
 app.register_blueprint(policy_routes, url_prefix="/api/policy")
 app.register_blueprint(server_routes, url_prefix="/api/server")
+app.register_blueprint(dmz_routes, url_prefix="/api/dmz")
+
 
 signal.signal(signal.SIGTERM, handle_sigterm)
 
@@ -76,16 +75,6 @@ def _scheduler():
         time.sleep(1)
 
 
-def create_db():
-    app.logger.info(f"Create database on {main_path}/data")
-    if not os.path.exists(f"{main_path}/data"):
-        os.mkdir(f"{main_path}/data")
-    UserDao().create_schema()
-    PolicyDao().create_schema()
-    PolicyClientDao().create_schema()
-    UserPolicyDao().create_schema()
-    PortMappingDao().create_schema()
-    VPNSessionDao().create_schema()
 
 if __name__ == "__main__":
     schedule.every().day.at("01:00").do(VPNTool.update_crl)

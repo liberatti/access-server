@@ -1,7 +1,7 @@
 import { Injectable, Injector } from '@angular/core';
 import { Observable } from 'rxjs';
 import { APIService } from './api.service';
-import { PortMappingModel, User } from '../models/security';
+import { PortMapping, User } from '../models/security';
 import { ServerConfig } from '../models/shared';
 
 @Injectable({
@@ -23,7 +23,7 @@ export class ServerService extends APIService<ServerConfig, string> {
 @Injectable({
     providedIn: 'root'
 })
-export class PortMappingService extends APIService<PortMappingModel, string> {
+export class PortMappingService extends APIService<PortMapping, string> {
     constructor(protected override injector: Injector) {
         super(injector, 'server/port_map')
     }

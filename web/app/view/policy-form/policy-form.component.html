@@ -22,7 +22,7 @@
                         <form [formGroup]="clientForm">
                             <mat-card>
                                 <mat-form-field class="full-width">
-                                    <mat-label>Client</mat-label>
+                                    <mat-label>Permit Access to Client</mat-label>
                                     <mat-select formControlName="client" [compareWith]="compareFn" (selectionChange)="onAddClient()">
                                         <mat-option *ngFor="let c of __clients;" [value]="c">
                                             {{c.name}}
@@ -45,7 +45,7 @@
                         <form [formGroup]="networkForm" class="mt-2">
                             <mat-card>
                                 <mat-form-field class="full-width">
-                                    <mat-label>Network</mat-label>
+                                    <mat-label>Permit access to Network</mat-label>
                                     <input matInput formControlName="addr">
                                     <button color="primary" matSuffix mat-icon-button (click)="onAddNetwork()">
                                         <mat-icon>add</mat-icon>

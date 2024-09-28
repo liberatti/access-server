@@ -46,6 +46,13 @@
                         </mat-icon>
                         <span>Policies</span>
                     </a>
+                    <a id="dmz_menu_link" class="icon-link" mat-list-item [routerLink]="['/dmz']"
+                        routerLinkActive="active">
+                        <mat-icon mat-list-icon>
+                            webhook
+                        </mat-icon>
+                        <span>Services</span>
+                    </a>
                 </mat-nav-list>
                 <a id="push-bottom" class="icon-link" mat-list-item (click)="showAbout()">
                     <mat-icon mat-list-icon>

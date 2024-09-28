@@ -1,3 +1,11 @@
+export interface DMZService{
+    id: string;
+    name: string;
+    description: string;
+    port_mappings: Array<PortMapping>;
+}
+
+
 
 export interface User {
     id: string;
@@ -5,20 +13,20 @@ export interface User {
     username: string;
     password: string;
     locale: string;
-    policies: Array<PolicyModel>;
-    port_mappings: Array<PortMappingModel>;
-    sessions: Array<VPNSession>;
-
+    session: VPNSession;
+    policies: Array<AccessPolicy>;
+    role:String;
 }
-export interface PortMappingModel {
+
+export interface PortMapping {
     id: string;
+    user: User;
     user_port: number;
     bind_port: number;
     protocol: string;
-    type: string;
 }
 
-export interface PolicyModel {
+export interface AccessPolicy {
     id: string;
     name: string;
     networks: Array<string>;

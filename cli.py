@@ -1,6 +1,26 @@
+import os
 import sys
 import bcrypt
-from api.model.user_model import UserDao
+from api.model.policy_model import PolicyClientDao, PolicyDao
+from api.model.user_model import (
+    UserPolicyDao,
+    UserDao
+)
+from api.model.vpn_model import VPNSessionDao
+from api.model.dmz_model import DMZServiceDao,PortMappingDao
+from config import main_path
+
+def create_db():
+    if not os.path.exists(f"{main_path}/data"):
+        os.mkdir(f"{main_path}/data")
+    UserDao().create_schema()
+    PolicyDao().create_schema()
+    PolicyClientDao().create_schema()
+    UserPolicyDao().create_schema()
+    PortMappingDao().create_schema()
+    VPNSessionDao().create_schema()
+    DMZServiceDao().create_schema()
+
 
 def reset_admin(usr, pw):
     dao = UserDao()

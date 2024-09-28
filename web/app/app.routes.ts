@@ -7,6 +7,8 @@ import { UserFormComponent } from './view/user-form/user-form.component';
 import { PolicyListComponent } from './view/policy-list/policy-list.component';
 import { PolicyFormComponent } from './view/policy-form/policy-form.component';
 import { WizardComponent } from './view/wizard/wizard.component';
+import { DmzServiceListComponent } from './view/dmz-service-list/dmz-service-list.component';
+import { DMZServiceFormComponent } from './view/dmz-service-form/dmz-service-form.component';
 
 export const routes: Routes = [
     {
@@ -30,6 +32,15 @@ export const routes: Routes = [
             { path: '', component: UserListComponent },
             { path: 'add', component: UserFormComponent },
             { path: 'edit/:id', component: UserFormComponent },
+        ]
+    },
+    {
+        path: 'dmz',
+        component: AdminLayoutComponent,
+        children: [
+            { path: '', component: DmzServiceListComponent },
+            { path: 'add', component: DMZServiceFormComponent },
+            { path: 'edit/:id', component: DMZServiceFormComponent },
         ]
     },
     {

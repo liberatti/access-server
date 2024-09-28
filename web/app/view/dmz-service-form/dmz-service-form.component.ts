@@ -13,15 +13,15 @@ import { MatSelectModule } from '@angular/material/select';
 import { MatTooltipModule } from '@angular/material/tooltip';
 import { ActivatedRoute, Router, RouterModule } from '@angular/router';
 import { TranslateModule } from '@ngx-translate/core';
-import { AccessPolicy, PortMapping, User } from 'web/app/models/security';
+import { AccessPolicy, DMZService, PortMapping, User } from 'web/app/models/security';
 import { FilterByPropertyPipe } from 'web/app/pipes/filter_by_property.pipe';
 import { NotificationService } from 'web/app/services/notification.service';
-import { PolicyService } from 'web/app/services/policy.service';
-import { PortMappingService, UserService } from 'web/app/services/security.service';
 import { MatSlideToggleModule } from '@angular/material/slide-toggle';
+import { PortMappingDialogComponent } from 'web/app/components/port-mapping-dialog/port-mapping-dialog.component';
+import { DMZServiceService } from 'web/app/services/dmz.service';
 
 @Component({
-  selector: 'app-user-form',
+  selector: 'app-dmz-service-form',
   standalone: true,
   imports: [ReactiveFormsModule, TranslateModule, CommonModule,
     MatFormFieldModule,
@@ -31,9 +31,9 @@ import { MatSlideToggleModule } from '@angular/material/slide-toggle';
     RouterModule, MatTooltipModule, MatSelectModule, MatOptionModule,
     MatIconModule, MatButtonModule, FilterByPropertyPipe, MatSlideToggleModule
   ],
-  templateUrl: './user-form.component.html'
+  templateUrl: './dmz-service-form.component.html'
 })
-export class UserFormComponent implements OnInit {
+export class DMZServiceFormComponent implements OnInit {
   isAddMode: boolean;
   submitted = false;
   _policies: Array<AccessPolicy> = [];
@@ -41,11 +41,8 @@ export class UserFormComponent implements OnInit {
   form = new FormGroup({
     id: new FormControl<string>(''),
     name: new FormControl<string>(''),
-    username: new FormControl<string>(''),
-    password: new FormControl<string>(''),
-    policies: new FormControl<Array<AccessPolicy>>([]),
-    role: new FormControl<String>('viewer'),
-    isAdmin: new FormControl<Boolean>(false)
+    description: new FormControl<string>(''),
+    port_mappings: new FormControl<Array<PortMapping>>([]),
   });
   policyForm = new FormGroup({
     policy: new FormControl<AccessPolicy>({} as AccessPolicy)
@@ -55,12 +52,8 @@ export class UserFormComponent implements OnInit {
     private notificationService: NotificationService,
     private route: ActivatedRoute,
     private router: Router,
-    private policyService: PolicyService,
-    private userService: UserService,
-    private portDialog: MatDialog,
-    private portService: PortMappingService
-
-
+    private dmzService: DMZServiceService,
+    private portDialog: MatDialog
   ) {
     this.isAddMode = false;
   }
@@ -68,20 +61,12 @@ export class UserFormComponent implements OnInit {
   ngOnInit(): void {
     this.isAddMode = !this.route.snapshot.params['id'];
 
-    this.policyService.get().subscribe(data => {
-      this._policies = data.data;
-    });
-
     if (!this.isAddMode) {
-      this.userService.getById(this.route.snapshot.params['id']).subscribe(data => {
+      this.dmzService.getById(this.route.snapshot.params['id']).subscribe(data => {
         this.form.get('id')?.setValue(data.id);
         this.form.get('name')?.setValue(data.name);
-        this.form.get('username')?.setValue(data.username);
-        this.form.get('role')?.setValue(data.role);
-        if (data.role == 'superuser') {
-          this.form.get('isAdmin')?.setValue(true);
-        }
-        this.form.get('policies')?.setValue(data.policies);
+        this.form.get('description')?.setValue(data.description);
+        this.form.get('port_mappings')?.setValue(data.port_mappings);
       });
     }
   }
@@ -90,46 +75,39 @@ export class UserFormComponent implements OnInit {
     if (this.form.status === "INVALID") {
       return;
     }
-    const formData = this.form.value as User;
-    if (this.form.value.isAdmin) {
-      formData.role = 'superuser';
-    } else {
-      formData.role = 'viewer';
-    }
-    Reflect.deleteProperty(formData, 'isAdmin');
-
+    const formData = this.form.value as DMZService;
     if (this.isAddMode) {
       Reflect.deleteProperty(formData, 'id');
-      this.userService.save(formData).subscribe(() => {
-        this.notificationService.openSnackBar('User saved');
-        this.router.navigate(['/user']);
+      this.dmzService.save(formData).subscribe(() => {
+        this.notificationService.openSnackBar('DMZ saved');
+        this.router.navigate(['/dmz']);
       });
     } else {
-      this.userService.update(formData.id, formData).subscribe(() => {
-        this.notificationService.openSnackBar('User updated');
-        this.router.navigate(['/user']);
+      this.dmzService.update(formData.id, formData).subscribe(() => {
+        this.notificationService.openSnackBar('DMZ updated');
+        this.router.navigate(['/dmz']);
       });
     }
   }
 
-  getPolicies(): Array<AccessPolicy> {
-    const ids = this.form.value.policies?.map(policy => policy.id);
-    return this._policies.filter(p => !ids?.includes(p.id));
+  onAddPort(): void {
+    const dialogRef = this.portDialog.open(PortMappingDialogComponent, {
+      width: '450px'
+    });
+
+    dialogRef.afterClosed().subscribe((result) => {
+      if (result) {
+        let arr = this.form.value.port_mappings as Array<PortMapping>;
+        arr.push(result);
+        this.form.get('port_mappings')?.reset(arr);
+      }
+    });
   }
 
-  onAddPolicy(): void {
-    let data = this.policyForm.value.policy as AccessPolicy;
-    if (this.form.value.policies != null) {
-      const pExists = this.form.value.policies.some(c1 => c1.id === data.id);
-      if (!pExists) {
-        this.form.value.policies.push(data);
-      }
-    }
-    this.policyForm.reset();
-  }
-  onRemovePolicy(keyword: any): void {
-    if (this.form.value.policies != null) {
-      this.form.value.policies = this.form.value.policies.filter(policy => policy.id !== keyword);
+
+  onRemovePort(keyword: any): void {
+    if (this.form.value.port_mappings != null) {
+      this.form.value.port_mappings = this.form.value.port_mappings.filter(port => port.id !== keyword);
     }
   }
 
