@@ -139,12 +139,6 @@ class VPNTool:
         daoSession.delete_all()
         daoSession.commit()
 
-        daoUser = UserDao()
-        user_page = daoUser.query_all()
-        if "data" in user_page:
-            for u in user_page["data"]:
-                FirewallTool.refresh_user_chain(u["id"])
-
         chmod_r("data", 0o777, recursive=True)
         with open(f"data/config.json", "r") as a:
             config = json.loads(a.read())

@@ -24,6 +24,7 @@ def save():
             data.update({"password": hashed.decode("utf-8")})
         pk = model.persist(data)
         VPNTool.create_client(pk)
+        FirewallTool.create_user(pk)
         FirewallTool.refresh_user_chain(pk)
         user = model.get_by_id(pk)
         model.commit()
@@ -96,7 +97,7 @@ def delete(user_id):
     try:
         result = model.delete_by_id(user_id)
         model.commit()
-
+        FirewallTool.remove_user(user_id)
         VPNTool.remove_client(user_id)
         if result:
             response = ResponseBuilder.data_removed(user_id)

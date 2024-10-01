@@ -90,6 +90,6 @@ if __name__ == "__main__":
         create_db()
 
     if VPNTool.is_initialized():
-        FirewallTool.create_firewall()
         VPNTool.start_service(wait=False)
+        FirewallTool.create_firewall()
     app.run(host="0.0.0.0")

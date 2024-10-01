@@ -6,3 +6,5 @@ DATETIME_FMT = "%Y-%m-%dT%H:%M:%S.%fZ"
 JWT_EXPIRATION_DELTA = 1800
 main_path = os.path.dirname(os.path.abspath(__file__))
 ADMIN_ROLE = ["viewer", "superuser"]
+
+BASE_BATH="/opt/access-server"

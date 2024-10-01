@@ -10,7 +10,7 @@ RUN npm run build
 
 FROM rockylinux:9 as main
 
-WORKDIR /opt/access-server
+WORKDIR /opt
 
 RUN dnf -y install epel-release \
     && dnf -y install git wget openvpn kmod ipset iptables python3.12 python3.12-pip python3.12-setuptools gcc python3.12-devel\
@@ -22,6 +22,8 @@ RUN wget https://github.com/OpenVPN/easy-rsa/releases/download/v$EASYRSA_VERSION
     && tar xzf EasyRSA-$EASYRSA_VERSION.tgz -C easy-rsa/ --strip-components 1 \
     && rm -f EasyRSA-$EASYRSA_VERSION.tgz \
     && chown -R root:root easy-rsa
+
+WORKDIR /opt/access-server
 
 ADD requirements.txt .
 RUN pip3.12 install -U pip setuptools>=65.5.1 wheel\

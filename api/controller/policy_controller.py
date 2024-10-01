@@ -19,6 +19,7 @@ def save():
         pk = model.persist(request.json)
         policy = model.get_by_id(pk)
         FirewallTool.create_policy_chain(pk)
+        FirewallTool.refresh_policy_chain(pk)
         model.commit()
         model.close()
         response = ResponseBuilder.data(policy)
