@@ -27,7 +27,7 @@ import { UserService } from 'web/app/services/security.service';
     FormsModule, MatCardModule,
     MatButtonModule, MatIcon, MatChipsModule,
     RouterModule, MatTooltipModule, MatSelectModule, MatOptionModule,
-    MatIconModule, MatButtonModule, FilterByPropertyPipe
+    MatIconModule, MatButtonModule
   ],
   templateUrl: './policy-form.component.html',
 })

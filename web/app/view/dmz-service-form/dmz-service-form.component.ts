@@ -29,7 +29,7 @@ import { DMZServiceService } from 'web/app/services/dmz.service';
     FormsModule, MatCardModule,
     MatButtonModule, MatIcon, MatChipsModule,
     RouterModule, MatTooltipModule, MatSelectModule, MatOptionModule,
-    MatIconModule, MatButtonModule, FilterByPropertyPipe, MatSlideToggleModule
+    MatIconModule, MatButtonModule, MatSlideToggleModule
   ],
   templateUrl: './dmz-service-form.component.html'
 })

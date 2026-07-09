@@ -1,9 +1,8 @@
-flask
-flask_restful
-flask_jwt_extended
-flask-cors
-flask-marshmallow
+Flask-RESTful>=0.3.10
+Flask-CORS>=5.0.1
+gunicorn[gevent]>=25.0.1
+schedule>=1.2.2
 bcrypt
 multidict
 psutil
-schedule
+nxcore[web,sqlite] @ git+https://github.com/liberatti/nxcore@v1.0.5

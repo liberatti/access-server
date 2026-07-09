@@ -3,8 +3,8 @@ import os
 import sys
 import bcrypt
 from api.utils import logger
-from api.model.user_model import UserDao
-from api.model.vpn_model import VPNSessionDao
+from api.repository.user_model import UserDao
+from api.repository.vpn_model import VPNSessionDao
 
 
 def print_env():

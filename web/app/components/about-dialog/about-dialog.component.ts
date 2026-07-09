@@ -18,7 +18,6 @@ import { MatInputModule } from '@angular/material/input';
         MatDialogTitle,
         MatDialogContent,
         MatDialogActions,
-        MatDialogClose,
     ],
 })
 

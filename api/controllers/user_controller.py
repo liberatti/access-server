@@ -1,12 +1,19 @@
 import bcrypt
-from flask import Blueprint, request
-from flask_jwt_extended import create_access_token, get_jwt
+from flask import Blueprint, request, Response
 from marshmallow import ValidationError
-from api.model.user_model import  UserDao
-from api.model.vpn_model import VPNSessionDao
-from api.utils import has_any_authority, logger
+from nxcore.controllers.base_controller import (
+    has_any_authority,
+    response_data,
+    response_error_parse,
+    response_error_404,
+    response_error_401,
+    response_error_500,
+    response_error_403,
+)
+from nxcore.middleware.jwt_manager import JWTManager
+from api.repository.user_model import UserDao
+from api.repository.vpn_model import VPNSessionDao
 from api.tools.vpn_tool import VPNTool
-from api.tools.response_builder import ResponseBuilder
 from api.tools.firewall_tool import FirewallTool
 from config import SECURITY_ENABLED
 
@@ -15,7 +22,7 @@ routes = Blueprint("user", __name__)
 
 @routes.route("", methods=["POST"])
 @has_any_authority(["superuser"])
-def save():
+def save() -> Response:
     model = UserDao()
     try:
         data = request.json
@@ -28,15 +35,17 @@ def save():
         FirewallTool.refresh_user_chain(pk)
         user = model.get_by_id(pk)
         model.commit()
-        user.pop("password")
-        return ResponseBuilder.data(user)
+        model.close()
+        user.pop("password", None)
+        return response_data(user)
     except ValidationError as err:
-        return ResponseBuilder.error_parse(err)
+        model.close()
+        return response_error_parse(err)
 
 
 @routes.route("", methods=["GET"])
 @has_any_authority(["viewer", "superuser"])
-def get():
+def get() -> Response:
     model = UserDao()
     if "size" in request.args and "page" in request.args:
         per_page = int(request.args.get("size"))
@@ -49,26 +58,31 @@ def get():
         for r in result["data"]:
             sessions = sessionDao.get_all_by_user_id(r["id"])
             r.update({"sessions": sessions})
-            r.pop("password")
-        return ResponseBuilder.data(result)
+            r.pop("password", None)
+        sessionDao.close()
+        model.close()
+        return response_data(result)
     else:
-        return ResponseBuilder.error_404(request.url)
+        model.close()
+        return response_error_404()
 
 
 @routes.route("/<user_id>", methods=["GET"])
 @has_any_authority(["viewer", "superuser"])
-def get_by_id(user_id):
-    user = UserDao().get_by_id(user_id)
+def get_by_id(user_id) -> Response:
+    model = UserDao()
+    user = model.get_by_id(user_id)
+    model.close()
     if user:
-        user.pop("password")
-        return ResponseBuilder.data(user)
+        user.pop("password", None)
+        return response_data(user)
     else:
-        return ResponseBuilder.error_404(request.url)
+        return response_error_404()
 
 
 @routes.route("/<user_id>", methods=["PUT"])
 @has_any_authority(["superuser"])
-def update(user_id):
+def update(user_id) -> Response:
     model = UserDao()
     user = model.get_by_id(user_id)
     try:
@@ -81,75 +95,83 @@ def update(user_id):
 
         model.update_by_id(user_id, data)
         model.commit()
+        model.close()
         FirewallTool.refresh_user_chain(user_id)
-        data.pop("password")
-        return ResponseBuilder.data(data)
+        data.pop("password", None)
+        return response_data(data)
     except ValidationError as err:
-        return ResponseBuilder.error_parse(err)
+        model.close()
+        return response_error_parse(err)
 
 
 @routes.route("/<user_id>", methods=["DELETE"])
 @has_any_authority(["superuser"])
-def delete(user_id):
+def delete(user_id) -> Response:
     model = UserDao()
     user = model.get_by_id(user_id)
-    response = None
     try:
         result = model.delete_by_id(user_id)
         model.commit()
         FirewallTool.remove_user(user_id)
         VPNTool.remove_client(user_id)
+        model.close()
         if result:
-            response = ResponseBuilder.data_removed(user_id)
+            return response_data({"message": f"Record {user_id} removed", "code": 200})
         else:
-            response = ResponseBuilder.error_404(request.url)
+            return response_error_404()
     except Exception as e:
-        response = ResponseBuilder.error_500(e)
-    model.close()
-    return response
+        model.close()
+        return response_error_500(str(e))
 
 
 @routes.route("/<user_id>/config/<target>", methods=["GET"])
 @has_any_authority(["viewer", "superuser"])
-def get_config_by_id(user_id, target):
-    user = UserDao().get_by_id(user_id)
+def get_config_by_id(user_id, target) -> Response:
+    model = UserDao()
+    user = model.get_by_id(user_id)
+    model.close()
     if user:
         config = VPNTool.get_openvpn_client(user_id, target)
-        return ResponseBuilder.raw(
+        return Response(
             config, headers={"Content-Type": "text/plain; charset=utf-8"}
         )
     else:
-        return ResponseBuilder.error_404(request.url)
+        return response_error_404()
 
 
 @routes.route("/login", methods=["POST"])
-def login():
+def login() -> Response:
     model = UserDao()
     try:
         user = model.find_by_username(request.json["username"])
+        model.close()
         if user:
             if bcrypt.checkpw(
                 request.json["password"].encode("utf8"), user["password"].encode("utf8")
-            ):
-                additional_claims = {"aud": "as", "authorities": user["role"]}
-                access_token = create_access_token(
-                    identity=user["username"], additional_claims=additional_claims
+              ):
+                jwt_mgr = JWTManager.get_current_instance()
+                access_token = jwt_mgr.create_access_token(
+                    sub=user["username"],
+                    authorities=[user["role"]],
+                    profile=user,
+                    extra_claims={"aud": "as"}
                 )
-                return ResponseBuilder.data(
+                return response_data(
                     {"access_token": access_token, "token_type": "Bearer"}
                 )
-        else:
-            return ResponseBuilder.error_403()
-
+        return response_error_403()
     except ValidationError as err:
-        return ResponseBuilder.error_parse(err)
+        model.close()
+        return response_error_parse(err)
 
 
 @routes.route("/info/", methods=["GET"])
 @has_any_authority(["viewer", "superuser"])
-def info():
+def info() -> Response:
     if SECURITY_ENABLED:
-        claims = get_jwt()
-        return {"username": claims["sub"]}
+        jwt_mgr = JWTManager.get_current_instance()
+        token = jwt_mgr.get_token_from_request()
+        payload = jwt_mgr.decode(token)
+        return response_data({"username": payload["sub"]})
     else:
-        return {"username": "dummy"}
+        return response_data({"username": "dummy"})

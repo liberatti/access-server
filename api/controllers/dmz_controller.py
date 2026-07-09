@@ -1,28 +1,36 @@
-from flask import Blueprint, request
+from flask import Blueprint, request, Response
 from marshmallow import ValidationError
-from api.utils import has_any_authority, logger
-from api.tools.response_builder import ResponseBuilder
-from api.model.dmz_model import DMZServiceDao
+from nxcore.controllers.base_controller import (
+    has_any_authority,
+    response_data,
+    response_error_parse,
+    response_error_404,
+    response_error_500,
+    response_data_removed,
+)
+from api.repository.dmz_model import DMZServiceDao
+
 routes = Blueprint("dmz", __name__)
 
 
 @routes.route("", methods=["POST"])
 @has_any_authority(["superuser"])
-def save():
+def save() -> Response:
     model = DMZServiceDao()
     try:
         data = request.json
         pk = model.persist(data)
         model.commit()
         model.close()
-        return ResponseBuilder.data(data)
+        return response_data(data)
     except ValidationError as err:
-        return ResponseBuilder.error_parse(err)
+        model.close()
+        return response_error_parse(err)
 
 
 @routes.route("", methods=["GET"])
 @has_any_authority(["viewer", "superuser"])
-def get():
+def get() -> Response:
     model = DMZServiceDao()
     if "size" in request.args and "page" in request.args:
         per_page = int(request.args.get("size"))
@@ -30,50 +38,52 @@ def get():
         result = model.query_all(page, per_page)
     else:
         result = model.query_all()
+    model.close()
     if result["metadata"]["total_pages"] > 0:
-        return ResponseBuilder.data(result)
+        return response_data(result)
     else:
-        return ResponseBuilder.error_404(request.url)
+        return response_error_404()
 
 
 @routes.route("/<user_id>", methods=["GET"])
 @has_any_authority(["viewer", "superuser"])
-def get_by_id(user_id):
-    user = DMZServiceDao().get_by_id(user_id)
+def get_by_id(user_id) -> Response:
+    model = DMZServiceDao()
+    user = model.get_by_id(user_id)
+    model.close()
     if user:
-        return ResponseBuilder.data(user)
+        return response_data(user)
     else:
-        return ResponseBuilder.error_404(request.url)
+        return response_error_404()
 
 
 @routes.route("/<user_id>", methods=["PUT"])
 @has_any_authority(["superuser"])
-def update(user_id):
+def update(user_id) -> Response:
     model = DMZServiceDao()
-    user = model.get_by_id(user_id)
     try:
         data = request.json
         model.update_by_id(user_id, data)
         model.commit()
         model.close()
-        return ResponseBuilder.data(data)
+        return response_data(data)
     except ValidationError as err:
-        return ResponseBuilder.error_parse(err)
+        model.close()
+        return response_error_parse(err)
 
 
 @routes.route("/<user_id>", methods=["DELETE"])
 @has_any_authority(["superuser"])
-def delete(user_id):
+def delete(user_id) -> Response:
     model = DMZServiceDao()
-    response = None
     try:
         result = model.delete_by_id(user_id)
         model.commit()
+        model.close()
         if result:
-            response = ResponseBuilder.data_removed(user_id)
+            return response_data_removed(user_id)
         else:
-            response = ResponseBuilder.error_404(request.url)
+            return response_error_404()
     except Exception as e:
-        response = ResponseBuilder.error_500(e)
-    model.close()
-    return response
+        model.close()
+        return response_error_500(str(e))

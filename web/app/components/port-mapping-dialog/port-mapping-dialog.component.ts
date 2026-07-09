@@ -16,21 +16,20 @@ import { PortMappingService, UserService } from 'web/app/services/security.servi
     templateUrl: './port-mapping-dialog.component.html',
     standalone: true,
     imports: [ReactiveFormsModule,
-        MatFormFieldModule,CommonModule,
+        MatFormFieldModule, CommonModule,
         MatInputModule,
         FormsModule, MatCardModule,
         MatButtonModule,
         MatDialogTitle,
         MatDialogContent,
         MatDialogActions,
-        MatDialogClose,
         MatSelectModule
     ],
 })
 
 export class PortMappingDialogComponent implements OnInit {
     _users: Array<User> = [];
-    _supportedProtocols = ['ICMP', 'TCP','UDP'];
+    _supportedProtocols = ['ICMP', 'TCP', 'UDP'];
 
     form = new FormGroup({
         user: new FormControl<User>({} as User),
@@ -43,7 +42,7 @@ export class PortMappingDialogComponent implements OnInit {
         public dialogRef: MatDialogRef<PortMappingDialogComponent>,
         private portService: PortMappingService,
         private userService: UserService
-    ) {}
+    ) { }
     ngOnInit(): void {
         this.userService.get().subscribe(data => {
             if (data.metadata) {
@@ -54,7 +53,7 @@ export class PortMappingDialogComponent implements OnInit {
 
     onConfirm(): void {
         let formData = this.form.value as PortMapping;
-        formData.user={"id":formData.user.id,"name":formData.user.name} as User;
+        formData.user = { "id": formData.user.id, "name": formData.user.name } as User;
         this.dialogRef.close(formData);
     }
 

@@ -1,95 +1,67 @@
-import os
-import signal
-import threading
-import time
-from flask import (
-    Flask,
-    render_template,
-    send_from_directory,
-    Blueprint,
-)
-from flask_restful import Api
-from flask_jwt_extended import (
-    JWTManager,
-)
-import schedule
+import traceback
+
+from flask import Flask, Blueprint
 from flask_cors import CORS
-from api.utils import handle_sigterm, ma, gen_random_string, chmod_r
-from api.controller.user_controller import routes as user_routes
-from api.controller.server_controller import routes as server_routes
-from api.controller.policy_controller import routes as policy_routes
-from api.controller.dmz_controller import routes as dmz_routes
+from flask_restful import Api
 
-from config import JWT_EXPIRATION_DELTA
-from api.tools.vpn_tool import FirewallTool, VPNTool
+import config
+import nxcore.config as nxcore_config
+from nxcore.controllers.base_controller import response_error_404, response_error_500
+from nxcore.middleware.logging_manager import logger, LoggingManager
+from nxcore.middleware.jwt_manager import JWTManager
 
-from cli import create_db
-from config import main_path
+from api.routes import register as register_api_routes
+
+nxcore_config.init(
+    {
+        "LOGLEVEL": config.LOGLEVEL,
+        "JWT_SECRET_KEY": config.JWT_SECRET_KEY,
+        "JWT_AUD": config.JWT_AUD,
+        "SECURITY_ENABLED": config.SECURITY_ENABLED,
+        "API_KEY": config.API_KEY,
+    }
+)
+
 
 app = Flask(__name__)
+app.config["LOGLEVEL"] = config.LOGLEVEL
+app.url_map.strict_slashes = False
+CORS(app, resources={r"/*": {"origins": "*"}})
 
-app.config["JWT_EXPIRATION_DELTA"] = JWT_EXPIRATION_DELTA
-app.config["JWT_SECRET_KEY"] = gen_random_string(64)
+LoggingManager(app)
+JWTManager(app)
+
+
+api = Api(app)
 
 bp = Blueprint("gw", __name__, template_folder="templates")
-jwt = JWTManager(app)
-cors = CORS(app, resources={r"/*": {"origins": "*"}})
-
-ma.init_app(app)
-api = Api(app)
-static_files_dir = "./static"
+register_api_routes(app, bp)
+app.register_blueprint(bp)
 
 
-@bp.route("/")
-def index():
-    return render_template("index.html")
+@app.errorhandler(404)
+def not_found_error(error):
+    """
+    Handles 404 Not Found errors.
+    """
+    return response_error_404()
 
 
-@bp.route("/<path:path>")
-def catch_all(path):
-    _path = path.lower().strip()
-    if path in ["", "/", None]:
-        return send_from_directory(static_files_dir, "index.html", mimetype="text/html")
-    elif _path.endswith(".css"):
-        return send_from_directory(static_files_dir, path, mimetype="text/css")
-    elif _path.endswith(".js"):
-        return send_from_directory(
-            static_files_dir, path, mimetype="application/javascript"
-        )
-    return send_from_directory(static_files_dir, path)
+@app.errorhandler(500)
+def internal_error(error):
+    """
+    Handles 500 Internal Server errors and logs the stack trace.
+    """
+    stack_trace = traceback.format_exc()
+    logger.error(f"500 Error: {error}, Stack Trace: {stack_trace}")
+    return response_error_500("Unexpected Server Error", details=stack_trace)
 
 
-app.register_blueprint(bp, url_prefix="/")
-app.register_blueprint(user_routes, url_prefix="/api/user")
-app.register_blueprint(policy_routes, url_prefix="/api/policy")
-app.register_blueprint(server_routes, url_prefix="/api/server")
-app.register_blueprint(dmz_routes, url_prefix="/api/dmz")
-
-
-signal.signal(signal.SIGTERM, handle_sigterm)
-
-
-def _scheduler():
-    while True:
-        schedule.run_pending()
-        time.sleep(1)
-
-
-
-if __name__ == "__main__":
-    schedule.every().day.at("01:00").do(VPNTool.update_crl)
-    schedule.every(5).seconds.do(VPNTool.session_monitor)
-
-    scheduler_thread = threading.Thread(
-        target=_scheduler,
-        daemon=False,
-    )
-    scheduler_thread.start()
-
-    if not os.path.exists(f"{main_path}/data/admin.db"):
-        create_db()
-
-    if VPNTool.is_initialized():
-        VPNTool.start_service(wait=False)
-        FirewallTool.create_firewall()
-    app.run(host="0.0.0.0")
+@app.errorhandler(Exception)
+def handle_exception(error):
+    """
+    Generic exception handler that logs the stack trace and returns a 500 error.
+    """
+    stack_trace = traceback.format_exc()
+    logger.error(f"Internal Server Error: {stack_trace}")
+    return response_error_500("Unexpected Server Error", details=stack_trace)

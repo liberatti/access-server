@@ -13,12 +13,11 @@ import { MatInputModule } from '@angular/material/input';
     imports: [
         MatFormFieldModule,
         MatInputModule,
-        FormsModule,MatCardModule,
+        FormsModule, MatCardModule,
         MatButtonModule,
         MatDialogTitle,
         MatDialogContent,
         MatDialogActions,
-        MatDialogClose,
     ],
 })
 

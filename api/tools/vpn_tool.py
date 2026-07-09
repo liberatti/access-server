@@ -8,12 +8,12 @@ import traceback
 import bcrypt
 from flask import json
 import psutil
-from api.model.user_model import UserDao
+from api.repository.user_model import UserDao
 from api.utils import chmod_r, logger
 from api.tools.firewall_tool import FirewallTool
 from api.tools.pki_tool import PKITool
-from api.model.vpn_model import VPNSessionDao
-from api.model.policy_model import PolicyClientDao
+from api.repository.vpn_model import VPNSessionDao
+from api.repository.policy_model import PolicyClientDao
 
 
 class VPNTool:

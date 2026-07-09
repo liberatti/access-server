@@ -6,12 +6,9 @@ import string
 from functools import wraps
 import sys
 import threading
-from flask_jwt_extended import verify_jwt_in_request, get_jwt
 from flask import jsonify
-from flask_marshmallow import Marshmallow
 from config import SECURITY_ENABLED
-
-ma = Marshmallow()
+from nxcore.middleware.jwt_manager import JWTManager
 
 
 def gen_random_string(length):
@@ -43,13 +40,16 @@ def has_any_authority(_authorities):
             if not SECURITY_ENABLED:
                 return fn(*args, **kwargs)
             try:
-                verify_jwt_in_request()
-            except:
+                jwt_mgr = JWTManager.get_current_instance()
+                token = jwt_mgr.get_token_from_request()
+                if not token:
+                    raise Exception("Missing authorization token")
+                claims = jwt_mgr.decode(token)
+            except Exception:
                 return (
                     jsonify({"message": "Invalid authorization", "code": 401}),
                     401,
                 )
-            claims = get_jwt()
             if any(a in claims.get("authorities", []) for a in _authorities):
                 return fn(*args, **kwargs)
             return jsonify(msg="Admin privileges required"), 403

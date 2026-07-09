@@ -29,7 +29,7 @@ import { MatSlideToggleModule } from '@angular/material/slide-toggle';
     FormsModule, MatCardModule,
     MatButtonModule, MatIcon, MatChipsModule,
     RouterModule, MatTooltipModule, MatSelectModule, MatOptionModule,
-    MatIconModule, MatButtonModule, FilterByPropertyPipe, MatSlideToggleModule
+    MatIconModule, MatButtonModule, MatSlideToggleModule
   ],
   templateUrl: './user-form.component.html'
 })

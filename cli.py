@@ -1,18 +1,18 @@
 import os
 import sys
 import bcrypt
-from api.model.policy_model import PolicyClientDao, PolicyDao
-from api.model.user_model import (
+from api.repository.policy_model import PolicyClientDao, PolicyDao
+from api.repository.user_model import (
     UserPolicyDao,
     UserDao
 )
-from api.model.vpn_model import VPNSessionDao
-from api.model.dmz_model import DMZServiceDao,PortMappingDao
-from config import main_path
+from api.repository.vpn_model import VPNSessionDao
+from api.repository.dmz_model import DMZServiceDao,PortMappingDao
+import config
 
 def create_db():
-    if not os.path.exists(f"{main_path}/data"):
-        os.mkdir(f"{main_path}/data")
+    if not os.path.exists(config.DB_PATH):
+        os.mkdir(config.DB_PATH)
     UserDao().create_schema()
     PolicyDao().create_schema()
     PolicyClientDao().create_schema()

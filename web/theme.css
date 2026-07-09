@@ -1,0 +1,141 @@
+@import url('https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800&family=JetBrains+Mono:wght@400;500&family=Poppins:wght@400;600;700;800&display=swap');
+
+:root {
+    /* Premium Sleek Dark Mode (Neon Fusion) Palette */
+    --background-dark: #07090e;
+    --background-darker: #030406;
+    --background-card: rgba(13, 17, 28, 0.75);
+    --background-glass: rgba(13, 17, 28, 0.45);
+    --background-panel: rgba(22, 28, 45, 0.85);
+    --background-panel-alt: rgba(30, 38, 60, 0.85);
+    --background-panel-deep: #0b0e14;
+    --background-pill: rgba(255, 255, 255, 0.08);
+    --background-overlay: rgba(3, 4, 6, 0.7);
+
+    --primary-color: #6366f1;
+    --primary-glow: rgba(99, 102, 241, 0.25);
+    --primary-hover: #4f46e5;
+
+    --accent-color: #0ea5e9;
+    --accent-glow: rgba(14, 165, 233, 0.25);
+    --accent-blue: #0ea5e9;
+    --accent-blue-glow: rgba(14, 165, 233, 0.3);
+    --accent-blue-dim: rgba(14, 165, 233, 0.12);
+    --accent-blue-ghost: rgba(14, 165, 233, 0.05);
+    
+    --accent-cyan: #06b6d4;
+    --accent-cyan-dim: rgba(6, 182, 212, 0.12);
+    
+    --accent-purple: #a855f7;
+    --accent-purple-dim: rgba(168, 85, 247, 0.12);
+    --accent-purple-ghost: rgba(168, 85, 247, 0.05);
+    
+    --accent-violet: #8b5cf6;
+    --accent-violet-glow: rgba(139, 92, 246, 0.3);
+    --accent-violet-dim: rgba(139, 92, 246, 0.15);
+
+    --text-primary: #f8fafc;
+    --text-secondary: #94a3b8;
+    --text-muted: #64748b;
+    --text-code: #e2e8f0;
+
+    --border-color: rgba(255, 255, 255, 0.08);
+    --border-dim: rgba(255, 255, 255, 0.04);
+    --border-med: rgba(255, 255, 255, 0.12);
+    --border-hover: rgba(14, 165, 233, 0.45);
+
+    /* Semantic Colors */
+    --success-color: #10b981;
+    --success-glow: rgba(16, 185, 129, 0.25);
+    --success-bg: rgba(16, 185, 129, 0.08);
+    --success-dim: rgba(16, 185, 129, 0.12);
+    
+    --warning-color: #f59e0b;
+    --warning-glow: rgba(245, 158, 11, 0.25);
+    --warning-bg: rgba(245, 158, 11, 0.08);
+
+    --danger-color: #ef4444;
+    --danger-glow: rgba(239, 68, 68, 0.25);
+    --danger-bg: rgba(239, 68, 68, 0.08);
+    --danger-dim: rgba(239, 68, 68, 0.12);
+
+    --background-nav: rgba(7, 9, 14, 0.75);
+    --background-nav-mobile: rgba(7, 9, 14, 0.96);
+
+    --white-ghost: rgba(255, 255, 255, 0.04);
+    --white-dim: rgba(255, 255, 255, 0.08);
+    --white-med: rgba(255, 255, 255, 0.12);
+
+    --black-ghost: rgba(0, 0, 0, 0.25);
+    --black-dim: rgba(0, 0, 0, 0.45);
+    --black-med: rgba(0, 0, 0, 0.65);
+    --black-strong: rgba(0, 0, 0, 0.85);
+
+    --shadow-premium: 0 12px 40px 0 rgba(0, 0, 0, 0.6);
+    --glass-blur: blur(20px);
+
+    /* Transitions */
+    --transition-standard: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+}
+
+body {
+    background-color: var(--background-dark);
+    color: var(--text-primary);
+    font-family: 'Inter', sans-serif;
+    margin: 0;
+    -webkit-font-smoothing: antialiased;
+}
+
+/* Glass Card Refinement */
+.glass-card {
+    background: var(--background-card);
+    backdrop-filter: var(--glass-blur);
+    -webkit-backdrop-filter: var(--glass-blur);
+    border: 1px solid var(--border-color);
+    border-radius: 12px;
+    box-shadow: var(--shadow-premium);
+    transition: var(--transition-standard);
+}
+
+.glass-card:hover {
+    border-color: var(--border-hover);
+    box-shadow: 0 12px 48px 0 rgba(15, 23, 42, 0.12);
+}
+
+/* Premium Buttons */
+button.mat-mdc-raised-button {
+    border-radius: 8px !important;
+    font-weight: 600 !important;
+    letter-spacing: 0.3px;
+    transition: var(--transition-standard) !important;
+}
+
+button.mat-mdc-raised-button.mat-primary {
+    background-color: var(--primary-color) !important;
+    box-shadow: 0 0 15px var(--primary-glow);
+}
+
+button.mat-mdc-raised-button.mat-primary:hover {
+    background-color: var(--primary-hover) !important;
+    box-shadow: 0 0 25px var(--primary-glow);
+    transform: translateY(-1px);
+}
+
+/* Custom Scrollbar */
+::-webkit-scrollbar {
+    width: 10px;
+}
+
+::-webkit-scrollbar-track {
+    background: var(--background-dark);
+}
+
+::-webkit-scrollbar-thumb {
+    background: var(--text-muted);
+    border-radius: 5px;
+    border: 2px solid var(--background-dark);
+}
+
+::-webkit-scrollbar-thumb:hover {
+    background: var(--text-secondary);
+}
