@@ -12,27 +12,27 @@
     --background-pill: rgba(0, 0, 0, 0.05);
     --background-overlay: rgba(15, 23, 42, 0.4);
 
-    --primary-color: #4f46e5;
-    --primary-glow: rgba(79, 70, 229, 0.15);
-    --primary-hover: #4338ca;
+    --primary-color: #7b2cbf;
+    --primary-glow: rgba(123, 44, 191, 0.2);
+    --primary-hover: #6a24a6;
 
-    --accent-color: #0284c7;
-    --accent-glow: rgba(2, 132, 199, 0.15);
-    --accent-blue: #0284c7;
-    --accent-blue-glow: rgba(2, 132, 199, 0.2);
-    --accent-blue-dim: rgba(2, 132, 199, 0.08);
-    --accent-blue-ghost: rgba(2, 132, 199, 0.04);
+    --accent-color: #00b4d8;
+    --accent-glow: rgba(0, 180, 216, 0.2);
+    --accent-blue: #0077b6;
+    --accent-blue-glow: rgba(0, 119, 182, 0.2);
+    --accent-blue-dim: rgba(0, 119, 182, 0.08);
+    --accent-blue-ghost: rgba(0, 119, 182, 0.04);
     
-    --accent-cyan: #0891b2;
-    --accent-cyan-dim: rgba(8, 145, 178, 0.08);
+    --accent-cyan: #00b4d8;
+    --accent-cyan-dim: rgba(0, 180, 216, 0.08);
     
-    --accent-purple: #9333ea;
-    --accent-purple-dim: rgba(147, 51, 234, 0.08);
-    --accent-purple-ghost: rgba(147, 51, 234, 0.04);
+    --accent-purple: #9d4edd;
+    --accent-purple-dim: rgba(157, 78, 221, 0.08);
+    --accent-purple-ghost: rgba(157, 78, 221, 0.04);
     
-    --accent-violet: #7c3aed;
-    --accent-violet-glow: rgba(124, 58, 237, 0.2);
-    --accent-violet-dim: rgba(124, 58, 237, 0.1);
+    --accent-violet: #7b2cbf;
+    --accent-violet-glow: rgba(123, 44, 191, 0.25);
+    --accent-violet-dim: rgba(123, 44, 191, 0.1);
 
     --text-primary: #0f172a;
     --text-secondary: #475569;
@@ -139,4 +139,21 @@ button.mat-mdc-raised-button.mat-primary:hover {
 
 ::-webkit-scrollbar-thumb:hover {
     background: var(--text-secondary);
+}
+
+/* Table Action Alignment */
+th.mat-column-action,
+td.mat-column-action,
+.mat-column-action {
+    text-align: right !important;
+}
+
+.mat-column-action .button-group,
+td.mat-column-action .button-group,
+.mat-column-action .toggle-container,
+td.mat-column-action .toggle-container {
+    display: flex;
+    justify-content: flex-end;
+    align-items: center;
+    width: 100%;
 }

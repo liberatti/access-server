@@ -2,6 +2,8 @@ from nxcore.common_utils import gen_random_string
 from nxcore.repository.duckdb_dao import DuckDAO
 from flask import json
 import config
+from typing import Dict, Any
+from nxcore.middleware.logging_manager import logger
 
 
 class PolicyDao(DuckDAO):
@@ -43,8 +45,11 @@ class PolicyDao(DuckDAO):
         :return: Transformed dictionary with normalized primary key.
         :rtype: dict
         """
-        if vo and "id" in vo:
-            vo["_id"] = vo.pop("id")
+        if vo:
+            if "id" in vo:
+                vo["_id"] = vo.pop("id")
+            if "networks" in vo:
+                vo["networks_json"] = json.dumps(vo.pop("networks"))
         return super().from_dict(vo)
 
     def to_dict(self, row):
@@ -72,9 +77,6 @@ class PolicyDao(DuckDAO):
         :return: Generated primary key ID.
         :rtype: str
         """
-        if "networks" in vo:
-            vo.update({"networks_json": json.dumps(vo.pop("networks"))})
-
         vo = self.from_dict(vo)
         if "_id" not in vo or not vo["_id"]:
             vo["_id"] = gen_random_string(12)
@@ -102,18 +104,22 @@ class PolicyDao(DuckDAO):
         :return: True if update succeeded.
         :rtype: bool
         """
-        if "networks" in vo:
-            vo.update({"networks_json": json.dumps(vo.pop("networks"))})
+        clients = None
         if "clients" in vo:
             clients = vo.pop("clients")
+
+        vo = self.from_dict(vo)
+        vo.pop("_id", None)
+        res = super().update_by_id(pk, vo)
+
+        if clients is not None:
             p_model = PolicyClientDao(connection=self.conn)
             p_model.delete_by_policy(pk)
             for t in clients:
                 client_id = t.get("id") or t.get("_id")
                 p_model.persist({"policy_id": pk, "user_id": client_id})
 
-        vo = self.from_dict(vo)
-        return super().update_by_id(pk, vo)
+        return res
 
     def query_all(self, page=None, per_page=None):
         """Query policies with optional pagination.
@@ -163,9 +169,7 @@ class PolicyClientDao(DuckDAO):
         self.ddl(
             f"""CREATE TABLE if not exists {self.table_name} (
                 policy_id varchar(12),
-                user_id varchar(12),
-                FOREIGN KEY (policy_id) REFERENCES policy(_id),
-                FOREIGN KEY (user_id) REFERENCES users(_id)
+                user_id varchar(12)
             )
             """
         )
@@ -215,3 +219,26 @@ class PolicyClientDao(DuckDAO):
             for r in rows:
                 targets.append({"id": r["policy_id"]})
         return targets
+
+    def persist(self, vo: Dict[str, Any]) -> Any:
+        """Inserts a new record.
+
+        Args:
+            vo (dict): Dictionary with record data.
+
+        Returns:
+            any: The last inserted ID.
+        """
+        vo = self.from_dict(vo)
+        keys = ", ".join(vo.keys())
+        values_placeholder = ", ".join(["?"] * len(vo))
+        sql = f"INSERT INTO {self.table_name} ({keys}) VALUES ({values_placeholder})"
+        values = list(vo.values())
+        logger.debug(self._interpolate_sql(sql, values))
+        cursor = self.conn.cursor()
+        try:
+            cursor.execute(sql, values)
+            if self.auto_commit:
+                self.commit()
+        finally:
+            cursor.close()

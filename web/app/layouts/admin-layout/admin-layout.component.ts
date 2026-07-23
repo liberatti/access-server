@@ -4,7 +4,7 @@ import { MatIconModule } from '@angular/material/icon';
 import { MatMenuModule } from '@angular/material/menu';
 import { MatToolbarModule } from '@angular/material/toolbar';
 import { Router, RouterModule } from '@angular/router';
-import { TranslateService } from '@ngx-translate/core';
+import { TranslateService, TranslatePipe } from '@ngx-translate/core';
 import moment from 'moment';
 import { User } from 'web/app/models/security';
 import { FrontendConfig } from 'web/app/models/shared';
@@ -23,6 +23,7 @@ import { environment } from 'web/environments/environment';
     MatToolbarModule,
     MatButtonModule,
     MatMenuModule,
+    TranslatePipe,
   ],
   templateUrl: './admin-layout.component.html',
   styleUrl: './admin-layout.component.css'

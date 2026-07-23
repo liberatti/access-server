@@ -2,11 +2,11 @@
     <mat-card>
         <mat-card-header>
             <mat-card-title>
-                Users
+                {{ 'titles.users' | translate }}
             </mat-card-title>
             <mat-card-actions>
                 <button id="add-btn" mat-button color="primary" [routerLink]="['add']">
-                    <mat-icon>add</mat-icon> {{'actions.create'|translate}}
+                    <mat-icon>add</mat-icon> {{ 'actions.create' | translate }}
                 </button>
             </mat-card-actions>
         </mat-card-header>
@@ -16,14 +16,14 @@
                 <tr mat-row *matRowDef="let row; columns: userDC;"></tr>
 
                 <ng-container matColumnDef="name">
-                    <th mat-header-cell *matHeaderCellDef> Name </th>
+                    <th mat-header-cell *matHeaderCellDef> {{ 'attr.name' | translate }} </th>
                     <td mat-cell *matCellDef="let element" class="full-width">
                         {{element.name}}
                     </td>
                 </ng-container>
 
                 <ng-container matColumnDef="sessions">
-                    <th mat-header-cell *matHeaderCellDef class="no-wrap"> Active Session </th>
+                    <th mat-header-cell *matHeaderCellDef class="no-wrap"> {{ 'attr.activeSession' | translate }} </th>
                     <td mat-cell *matCellDef="let element">
                         <mat-chip-set>
                             @for (n of element.sessions; track n) {
@@ -33,29 +33,27 @@
                     </td>
                 </ng-container>
                 <ng-container matColumnDef="role">
-                    <th mat-header-cell *matHeaderCellDef> Role </th>
+                    <th mat-header-cell *matHeaderCellDef> {{ 'attr.role' | translate }} </th>
                     <td mat-cell *matCellDef="let element"> {{element.role}} </td>
                 </ng-container>
                 <ng-container matColumnDef="download">
                     <th mat-header-cell *matHeaderCellDef> </th>
                     <td mat-cell *matCellDef="let element;let i = index;" class="mat-column-action">
-
                     </td>
                 </ng-container>
                 <ng-container matColumnDef="action">
-                    <th mat-header-cell *matHeaderCellDef> </th>
+                    <th mat-header-cell *matHeaderCellDef class="mat-column-action"> {{ 'attr.action' | translate }} </th>
                     <td mat-cell *matCellDef="let element;let i = index;" class="mat-column-action">
-
                         <div class="button-group">
                             <button mat-button [matMenuTriggerFor]="menu1">
                                 <mat-icon>more_vert</mat-icon>
                             </button>
                             <mat-menu #menu1="matMenu" xPosition="before">
                                 <button mat-menu-item [routerLink]="['edit',element.id]">
-                                    <mat-icon>edit</mat-icon> Edit
+                                    <mat-icon>edit</mat-icon> {{ 'actions.edit' | translate }}
                                 </button>
                                 <button mat-menu-item (click)="onRemove(element)">
-                                    <mat-icon>delete</mat-icon> Delete
+                                    <mat-icon>delete</mat-icon> {{ 'actions.delete' | translate }}
                                 </button>
                             </mat-menu>
                             <button mat-button [matMenuTriggerFor]="menu2">
@@ -63,15 +61,13 @@
                             </button>
                             <mat-menu #menu2="matMenu" xPosition="before">
                                 <button mat-menu-item (click)="donwloadConfig(element.id,'default')">
-                                    <mat-icon>download</mat-icon> Computer
+                                    <mat-icon>download</mat-icon> {{ 'actions.computer' | translate }}
                                 </button>
                                 <button mat-menu-item (click)="donwloadConfig(element.id,'mobile')">
-                                    <mat-icon>download</mat-icon> Mobile
+                                    <mat-icon>download</mat-icon> {{ 'actions.mobile' | translate }}
                                 </button>
                             </mat-menu>
                         </div>
-
-
                     </td>
                 </ng-container>
             </table>

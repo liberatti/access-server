@@ -1,47 +1,81 @@
 {
   "aboutMessage": "Obrigado",
+  "titles": {
+    "users": "Usuários",
+    "policies": "Políticas de Acesso",
+    "dmzServices": "Serviços DMZ",
+    "serverStatus": "Status do Servidor",
+    "portMapping": "Mapeamento de Portas",
+    "userForm": "Formulário de Usuário",
+    "policyForm": "Formulário de Política",
+    "dmzForm": "Formulário de Serviço DMZ",
+    "singleSignOn": "Autenticação Única"
+  },
   "actions": {
     "create": "Adicionar",
     "edit": "Editar",
+    "delete": "Excluir",
     "remove": "Remover",
     "search": "Buscar",
-    "filter":"Filtrar",
+    "filter": "Filtrar",
     "export": "Exportar",
     "save": "Salvar",
-    "import":"Importar",
-    "refresh":"Atualizar"
+    "cancel": "Cancelar",
+    "download": "Baixar",
+    "computer": "Perfil Computador",
+    "mobile": "Perfil Dispositivo Móvel",
+    "add": "Adicionar",
+    "no": "Não",
+    "ok": "Ok",
+    "login": "ENTRAR"
   },
   "attr": {
     "name": "Nome",
-    "domains": "Dominios",
+    "username": "Nome de Usuário",
+    "role": "Perfil / Função",
+    "activeSession": "Sessão Ativa",
+    "networks": "Redes",
+    "totalClients": "Total de Clientes",
+    "portMappings": "Mapeamentos de Porta",
+    "description": "Descrição",
+    "protocol": "Protocolo",
+    "serverPort": "Porta do Servidor",
+    "clientPort": "Porta do Cliente",
+    "port": "Porta",
+    "client": "Cliente",
+    "policy": "Política",
+    "permitClient": "Permitir Acesso ao Cliente",
+    "permitNetwork": "Permitir Acesso à Rede",
+    "action": "Ações",
+    "download": "Baixar Config",
+    "password": "Senha",
+    "language": "Idioma",
+    "domains": "Domínios",
     "routes": "Rotas",
-    "active": "Ativo",
-    "login": {
-      "username": "Enter your user name",
-      "password": "Password here"
-    },
-    "service": {},
-    "upstream": {}
+    "active": "Ativo"
+  },
+  "hints": {
+    "networkIp": "ex. 192.168.1.0/24",
+    "username": "Digite o nome de usuário",
+    "password": "Digite a senha",
+    "name": "Digite o nome",
+    "description": "Digite a descrição do serviço",
+    "selectClient": "Selecione um cliente",
+    "selectPolicy": "Selecione a política de acesso"
   },
   "nav": {
-    "services": "Serviços",
-    "upstreams": "Upstreams",
-    "sensors": "Sensors",
-    "about": "Sobre",
-    "dashboard": "Paineis",
+    "users": "Usuários",
+    "policies": "Políticas",
+    "dmzServices": "Serviços DMZ",
     "system": "Sistema",
-    "hostnames": "Hostnames",
-    "certificates": "Certificados",
-    "dictionaries": "Dicionarios",
-    "gateway": "Gateway",
-    "transactions": "Transações"
+    "about": "Sobre"
   },
   "format": {
     "parse": {
       "dateInput": "YYYY-MM-DDTHH:mm:ss.SSSZ"
     },
     "display": {
-      "time":"HH:mm:ss",
+      "time": "HH:mm:ss",
       "datetime": "DD/MM/YYYY HH:mm:ss",
       "monthYearLabel": "MMM YYYY",
       "dateA11yLabel": "LL",

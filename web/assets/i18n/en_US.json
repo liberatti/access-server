@@ -1,44 +1,83 @@
 {
   "aboutMessage": "Thanks",
+  "titles": {
+    "users": "Users",
+    "policies": "Access Policies",
+    "dmzServices": "DMZ Services",
+    "serverStatus": "Server Status",
+    "portMapping": "Port Mapping",
+    "userForm": "User Form",
+    "policyForm": "Policy Form",
+    "dmzForm": "DMZ Service Form",
+    "singleSignOn": "Single Sign-On"
+  },
   "actions": {
     "create": "Create",
     "edit": "Edit",
+    "delete": "Delete",
     "remove": "Remove",
     "search": "Search",
+    "filter": "Filter",
     "export": "Export",
-    "save": "Save"
+    "save": "Save",
+    "cancel": "Cancel",
+    "download": "Download",
+    "computer": "Computer Profile",
+    "mobile": "Mobile Profile",
+    "add": "Add",
+    "no": "No",
+    "ok": "Ok",
+    "login": "LOGIN",
+    "logout": "Logout",
+    "about": "About"
   },
   "attr": {
     "name": "Name",
+    "username": "Username",
+    "role": "Role",
+    "activeSession": "Active Session",
+    "networks": "Networks",
+    "totalClients": "Total Clients",
+    "portMappings": "Port Mappings",
+    "description": "Description",
+    "protocol": "Protocol",
+    "serverPort": "Server Port",
+    "clientPort": "Client Port",
+    "port": "Port",
+    "client": "Client",
+    "policy": "Policy",
+    "permitClient": "Permit Access to Client",
+    "permitNetwork": "Permit Access to Network",
+    "action": "Actions",
+    "download": "Config Download",
+    "password": "Password",
+    "language": "Language",
     "domains": "Domain List",
     "routes": "Routes",
-    "active": "Active",
-    "login": {
-      "username": "Enter your user name",
-      "password": "Password here"
-    },
-    "service": {},
-    "upstream": {}
+    "active": "Active"
+  },
+  "hints": {
+    "networkIp": "e.g. 192.168.1.0/24",
+    "username": "Enter username",
+    "password": "Enter password",
+    "name": "Enter name",
+    "description": "Enter service description",
+    "selectClient": "Select a client user",
+    "selectPolicy": "Select access policy"
   },
   "nav": {
-    "services": "Services",
-    "upstreams": "Upstreams",
-    "sensors": "Sensors",
-    "about": "About",
-    "dashboard": "Dashboards",
+    "users": "Users",
+    "policies": "Policies",
+    "dmzServices": "Services",
     "system": "System",
-    "events": "Event",
-    "hostnames": "Hostnames",
-    "certificates": "Certificates",
-    "dictionaries": "Dictionaries",
-    "gateway": "Gateway",
-    "transactions":"Transactions"
+    "about": "About"
   },
   "format": {
     "parse": {
       "dateInput": "YYYY-MM-DDTHH:mm:ss.SSSZ"
     },
     "display": {
+      "time": "HH:mm:ss",
       "datetime": "DD/MM/YYYY HH:mm:ss",
       "monthYearLabel": "MMM YYYY",
       "dateA11yLabel": "LL",

@@ -1,0 +1,3 @@
+{% for map in mappings %}
+iptables -A FORWARD -m comment --comment 'srv_{{ dmz_id }}' -p {{ map.protocol }} --dport {{ map.user_port }} -m set --match-set {{ map.user_id }}_set dst -j ACCEPT
+{% endfor %}

@@ -1,7 +1,7 @@
 from nxcore.common_utils import gen_random_string
 from nxcore.middleware.logging_manager import logger
 from nxcore.repository.duckdb_dao import DuckDAO
-
+from typing import Dict, Any
 import config
 
 
@@ -64,6 +64,29 @@ class UserDao(DuckDAO):
             row.update({"policies": up_model.get_by_user_id(row["id"])})
         return row
 
+    def _persist(self, vo: Dict[str, Any]) -> Any:
+        """Inserts a new record.
+
+        Args:
+            vo (dict): Dictionary with record data.
+
+        Returns:
+            any: The last inserted ID.
+        """
+        vo = self.from_dict(vo)
+        keys = ", ".join(vo.keys())
+        values_placeholder = ", ".join(["?"] * len(vo))
+        sql = f"INSERT INTO {self.table_name} ({keys}) VALUES ({values_placeholder})"
+        values = list(vo.values())
+        logger.debug(self._interpolate_sql(sql, values))
+        cursor = self.conn.cursor()
+        try:
+            cursor.execute(sql, values)
+            if self.auto_commit:
+                self.commit()
+        finally:
+            cursor.close()
+
     def persist(self, vo):
         """Persist a new user record and policy assignments.
 
@@ -80,7 +103,7 @@ class UserDao(DuckDAO):
         if "_id" not in vo or not vo["_id"]:
             vo["_id"] = gen_random_string(12)
 
-        super().persist(vo)
+        self._persist(vo)
 
         if policies:
             up_model = UserPolicyDao(connection=self.conn)
@@ -101,16 +124,22 @@ class UserDao(DuckDAO):
         :return: True if update succeeded.
         :rtype: bool
         """
+        policies = None
         if "policies" in vo:
-            ps = vo.pop("policies")
+            policies = vo.pop("policies")
+
+        vo = self.from_dict(vo)
+        vo.pop("_id", None)
+        res = super().update_by_id(pk, vo)
+
+        if policies is not None:
             up_model = UserPolicyDao(connection=self.conn)
             up_model.delete_by_user(pk)
-            for p in ps:
+            for p in policies:
                 policy_id = p.get("id") or p.get("_id")
                 up_model.persist({"user_id": pk, "policy_id": policy_id})
 
-        vo = self.from_dict(vo)
-        return super().update_by_id(pk, vo)
+        return res
 
     def get_descr(self, id):
         """Retrieve description details for a user.
@@ -184,9 +213,7 @@ class UserPolicyDao(DuckDAO):
         self.ddl(
             f"""CREATE TABLE if not exists {self.table_name} (
                 user_id varchar(12),
-                policy_id varchar(12),
-                FOREIGN KEY (policy_id) REFERENCES policy(_id),
-                FOREIGN KEY (user_id) REFERENCES users(_id)
+                policy_id varchar(12)
             )
             """
         )
@@ -224,3 +251,23 @@ class UserPolicyDao(DuckDAO):
         self._query(sql, (user_id,))
         if self.auto_commit:
             self.commit()
+
+    def persist(self, vo: Dict[str, Any]) -> Any:
+        """Persist a new user policy mapping record without RETURNING _id.
+
+        :param vo: Dictionary containing mapping data.
+        :type vo: dict
+        """
+        vo = self.from_dict(vo)
+        keys = ", ".join(vo.keys())
+        values_placeholder = ", ".join(["?"] * len(vo))
+        sql = f"INSERT INTO {self.table_name} ({keys}) VALUES ({values_placeholder})"
+        values = list(vo.values())
+        logger.debug(self._interpolate_sql(sql, values))
+        cursor = self.conn.cursor()
+        try:
+            cursor.execute(sql, values)
+            if self.auto_commit:
+                self.commit()
+        finally:
+            cursor.close()

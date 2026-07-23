@@ -1,26 +1,26 @@
 <div class="admin-container">
   <mat-toolbar class="admin-header">
     <span class="brand-text">
-      <mat-icon class="brand-icon">vpn_key</mat-icon>
+      <img src="assets/icon.png" class="brand-logo" alt="Access Server Logo">
       Access Server <small>{{version}}</small>
     </span>
 
     <div class="nav-links">
       <a mat-button routerLink="/user" routerLinkActive="active">
         <mat-icon>domain</mat-icon>
-        <span>Users</span>
+        <span>{{ 'nav.users' | translate }}</span>
       </a>
       <a mat-button routerLink="/policy" routerLinkActive="active">
         <mat-icon>security</mat-icon>
-        <span>Policies</span>
+        <span>{{ 'nav.policies' | translate }}</span>
       </a>
       <a mat-button routerLink="/dmz" routerLinkActive="active">
         <mat-icon>webhook</mat-icon>
-        <span>Services</span>
+        <span>{{ 'nav.dmzServices' | translate }}</span>
       </a>
       <button mat-button (click)="showAbout()">
         <mat-icon>info</mat-icon>
-        <span>About</span>
+        <span>{{ 'actions.about' | translate }}</span>
       </button>
     </div>
 
@@ -29,7 +29,7 @@
     <span class="user-greeting">{{user.username}}</span>
 
     <button mat-button (click)="logout()" class="logout-btn">
-      <mat-icon>logout</mat-icon> Logout
+      <mat-icon>logout</mat-icon> {{ 'actions.logout' | translate }}
     </button>
   </mat-toolbar>
 

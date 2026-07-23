@@ -3,11 +3,11 @@
         <mat-card-header>
             @if (isAddMode){
             <mat-card-title>
-                {{ 'actions.create' | translate }}
+                {{ 'titles.policyForm' | translate }} - {{ 'actions.create' | translate }}
             </mat-card-title>
             }@else{
             <mat-card-title>
-                {{ 'actions.edit' | translate }}
+                {{ 'titles.policyForm' | translate }} - {{ 'actions.edit' | translate }}
             </mat-card-title>
             }
         </mat-card-header>
@@ -15,39 +15,43 @@
             <div class="row">
                 <div class="col">
                     <form [formGroup]="form">
-                        <mat-form-field class="full-width">
-                            <mat-label>name</mat-label>
-                            <input id="policy.name" matInput formControlName="name">
+                        <mat-form-field class="full-width" appearance="outline">
+                            <mat-label>{{ 'attr.name' | translate }}</mat-label>
+                            <input id="policy.name" matInput formControlName="name" [placeholder]="'hints.name' | translate">
                         </mat-form-field>
-                        <form [formGroup]="clientForm">
+                        
+                        <div [formGroup]="clientForm">
                             <mat-card>
-                                <mat-form-field class="full-width">
-                                    <mat-label>Permit Access to Client</mat-label>
+                                <mat-form-field class="full-width" appearance="outline">
+                                    <mat-label>{{ 'attr.permitClient' | translate }}</mat-label>
                                     <mat-select formControlName="client" [compareWith]="compareFn" (selectionChange)="onAddClient()">
                                         <mat-option *ngFor="let c of __clients;" [value]="c">
                                             {{c.name}}
                                         </mat-option>
                                     </mat-select>
+                                    <mat-hint>{{ 'hints.selectClient' | translate }}</mat-hint>
                                 </mat-form-field>
                                 <mat-card-content>
                                     <mat-chip-listbox>
                                         <mat-chip-row *ngFor="let p of form.value.clients"
                                             (removed)="onRemoveClient(p.id)">
                                             {{p.name}}
-                                            <button matChipRemove>
+                                            <button type="button" matChipRemove>
                                                 <mat-icon>cancel</mat-icon>
                                             </button>
                                         </mat-chip-row>
                                     </mat-chip-listbox>
                                 </mat-card-content>
                             </mat-card>
-                        </form>
-                        <form [formGroup]="networkForm" class="mt-2">
+                        </div>
+
+                        <div [formGroup]="networkForm" class="mt-2">
                             <mat-card>
-                                <mat-form-field class="full-width">
-                                    <mat-label>Permit access to Network</mat-label>
-                                    <input matInput formControlName="addr">
-                                    <button color="primary" matSuffix mat-icon-button (click)="onAddNetwork()">
+                                <mat-form-field class="full-width" appearance="outline">
+                                    <mat-label>{{ 'attr.permitNetwork' | translate }}</mat-label>
+                                    <input matInput formControlName="addr" [placeholder]="'hints.networkIp' | translate">
+                                    <mat-hint>{{ 'hints.networkIp' | translate }}</mat-hint>
+                                    <button type="button" color="primary" matSuffix mat-icon-button (click)="onAddNetwork()">
                                         <mat-icon>add</mat-icon>
                                     </button>
                                 </mat-form-field>
@@ -56,16 +60,14 @@
                                         <mat-chip-row *ngFor="let p of form.value.networks"
                                             (removed)="onRemoveNetwork(p)">
                                             {{p}}
-                                            <button matChipRemove>
+                                            <button type="button" matChipRemove>
                                                 <mat-icon>cancel</mat-icon>
                                             </button>
                                         </mat-chip-row>
                                     </mat-chip-listbox>
                                 </mat-card-content>
                             </mat-card>
-                        </form>
-
-
+                        </div>
                     </form>
                 </div>
             </div>

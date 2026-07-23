@@ -1,1 +1,198 @@
-/* Styles for sign-in component are defined globally in styles.css to be shared with the wizard component */
+.vcenter-login-container {
+  display: flex;
+  min-height: 100vh;
+  width: 100vw;
+  background-color: var(--background-darker, #0b132b);
+  overflow: hidden;
+  font-family: 'Inter', sans-serif;
+}
+
+/* Left Login Panel (vCenter Style) */
+.vcenter-login-panel {
+  width: 440px;
+  min-width: 360px;
+  background: #ffffff;
+  display: flex;
+  flex-direction: column;
+  justify-content: space-between;
+  padding: 48px 40px 32px 40px;
+  box-shadow: 10px 0 30px rgba(11, 19, 43, 0.15);
+  z-index: 10;
+  box-sizing: border-box;
+}
+
+.vcenter-login-content {
+  display: flex;
+  flex-direction: column;
+  gap: 32px;
+}
+
+/* Brand Header */
+.vcenter-brand {
+  display: flex;
+  align-items: center;
+  gap: 16px;
+}
+
+.vcenter-logo {
+  width: 48px;
+  height: 48px;
+  object-fit: contain;
+  filter: drop-shadow(0 4px 10px rgba(123, 44, 191, 0.4));
+}
+
+.vcenter-title-group {
+  display: flex;
+  flex-direction: column;
+}
+
+.vcenter-brand-title {
+  font-size: 1.5rem;
+  font-weight: 700;
+  color: #0b132b;
+  margin: 0;
+  letter-spacing: -0.5px;
+}
+
+.vcenter-brand-subtitle {
+  font-size: 0.78rem;
+  font-weight: 500;
+  color: #64748b;
+  margin-top: 2px;
+}
+
+/* Form Styles */
+.vcenter-form {
+  display: flex;
+  flex-direction: column;
+  gap: 16px;
+}
+
+.vcenter-form-title {
+  font-size: 1.15rem;
+  font-weight: 600;
+  color: #1e293b;
+  margin: 0 0 8px 0;
+  padding-bottom: 8px;
+  border-bottom: 2px solid #f1f5f9;
+}
+
+.vcenter-field {
+  width: 100%;
+}
+
+.vcenter-actions {
+  margin-top: 8px;
+}
+
+.vcenter-btn-submit {
+  width: 100%;
+  height: 46px;
+  font-size: 0.95rem;
+  font-weight: 700;
+  letter-spacing: 0.5px;
+  background-color: var(--primary-color, #7b2cbf) !important;
+  color: #ffffff !important;
+  border-radius: 6px !important;
+  box-shadow: 0 4px 14px rgba(123, 44, 191, 0.35) !important;
+  transition: all 0.2s ease-in-out !important;
+}
+
+.vcenter-btn-submit:hover {
+  background-color: var(--primary-hover, #6a24a6) !important;
+  transform: translateY(-1px);
+  box-shadow: 0 6px 18px rgba(123, 44, 191, 0.45) !important;
+}
+
+/* Footer */
+.vcenter-footer {
+  font-size: 0.75rem;
+  color: #94a3b8;
+  text-align: left;
+  border-top: 1px solid #f1f5f9;
+  padding-top: 16px;
+}
+
+/* Right Side Ambient Backdrop */
+.vcenter-backdrop-panel {
+  flex: 1;
+  background: radial-gradient(circle at 70% 30%, #1e1035 0%, #0b132b 60%, #050814 100%);
+  position: relative;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  overflow: hidden;
+}
+
+.vcenter-backdrop-panel::before {
+  content: '';
+  position: absolute;
+  top: -20%;
+  right: -10%;
+  width: 600px;
+  height: 600px;
+  background: radial-gradient(circle, rgba(123, 44, 191, 0.25) 0%, rgba(0, 180, 216, 0.1) 50%, transparent 70%);
+  filter: blur(60px);
+  pointer-events: none;
+}
+
+.vcenter-backdrop-overlay {
+  position: relative;
+  z-index: 2;
+  text-align: center;
+  padding: 40px;
+  max-width: 480px;
+}
+
+.vcenter-hero-badge {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 16px;
+  animation: fadeIn 0.8s ease-out;
+}
+
+.vcenter-hero-icon {
+  width: 130px;
+  height: 130px;
+  object-fit: contain;
+  filter: drop-shadow(0 10px 30px rgba(123, 44, 191, 0.6));
+}
+
+.vcenter-hero-title {
+  color: #ffffff;
+  font-size: 1.75rem;
+  font-weight: 700;
+  margin: 0;
+  letter-spacing: -0.5px;
+  text-shadow: 0 2px 10px rgba(0, 0, 0, 0.3);
+}
+
+.vcenter-hero-desc {
+  color: #94a3b8;
+  font-size: 0.95rem;
+  margin: 0;
+  line-height: 1.5;
+}
+
+/* Responsive collapse for small screens */
+@media (max-width: 768px) {
+  .vcenter-login-container {
+    flex-direction: column;
+  }
+  .vcenter-login-panel {
+    width: 100%;
+    min-width: 100%;
+    height: 100vh;
+    padding: 32px 24px;
+    box-shadow: none;
+  }
+  .vcenter-backdrop-panel {
+    display: none;
+  }
+}
+
+@keyframes fadeIn {
+  from { opacity: 0; transform: translateY(10px); }
+  to { opacity: 1; transform: translateY(0); }
+}

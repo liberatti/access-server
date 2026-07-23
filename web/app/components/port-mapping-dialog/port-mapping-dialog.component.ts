@@ -44,17 +44,30 @@ export class PortMappingDialogComponent implements OnInit {
         private userService: UserService
     ) { }
     ngOnInit(): void {
-        this.userService.get().subscribe(data => {
-            if (data.metadata) {
-                this._users = data.data;
+        this.userService.get().subscribe((res: any) => {
+            if (res && res.data) {
+                this._users = res.data;
+            } else if (Array.isArray(res)) {
+                this._users = res;
             }
         });
     }
 
     onConfirm(): void {
-        let formData = this.form.value as PortMapping;
-        formData.user = { "id": formData.user.id, "name": formData.user.name } as User;
-        this.dialogRef.close(formData);
+        const val = this.form.value as any;
+        const userObj = val.user;
+        const userId = userObj?.id || userObj?._id || 'user_' + Date.now();
+        const userName = userObj?.name || userObj?.username || 'User';
+
+        const portMapping: PortMapping = {
+            id: userId,
+            user: { id: userId, name: userName, username: userName } as User,
+            user_port: Number(val.user_port || 8080),
+            bind_port: Number(val.bind_port || 8080),
+            protocol: val.protocol || 'TCP'
+        } as PortMapping;
+
+        this.dialogRef.close(portMapping);
     }
 
     onDismiss(): void {

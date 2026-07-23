@@ -31,6 +31,7 @@ RUN pip3.12 install -U pip setuptools>=65.5.1 wheel\
     && pip3.12 install -r requirements.txt
 
 ADD api api
+ADD templates templates
 ADD *.py .
 ADD iptables-start.save .
 COPY --from=build_frontend /app/web/dist/index.html templates/

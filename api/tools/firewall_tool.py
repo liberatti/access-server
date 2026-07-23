@@ -1,10 +1,17 @@
+import os
 import subprocess
+from jinja2 import Template
+import config
 
 from nxcore.middleware.logging_manager import logger
 
 from api.model.user_model import UserDao
 from api.model.policy_model import PolicyDao
 from api.model.dmz_model import DMZServiceDao, PortMappingDao
+from api.model.vpn_model import VPNSessionDao
+
+
+from api.utils import get_template_path
 
 
 class FirewallTool:
@@ -38,7 +45,7 @@ class FirewallTool:
 
     @classmethod
     def refresh_service(cls, dmz_id):
-        """Refresh iptables forward and NAT rules for a specific DMZ service.
+        """Refresh iptables forward and NAT rules for a specific DMZ service using Jinja2 template.
 
         :param dmz_id: DMZ service identifier.
         :type dmz_id: str
@@ -54,15 +61,17 @@ class FirewallTool:
                 subprocess.run(
                     f"iptables -t nat -D PREROUTING {id}", shell=True, check=True
                 )
-        m_model = PortMappingDao()
-        mappings = m_model.get_by_dmz_id(dmz_id)
+
+        with PortMappingDao() as m_model:
+            mappings = m_model.get_by_dmz_id(dmz_id)
+
         if mappings:
-            for map in mappings:
-                subprocess.run(
-                    f"""iptables -A FORWARD -m comment --comment 'srv_{dmz_id}' -p {map['protocol']} \
-                            --dport {map['user_port']} -m set --match-set {map['user_id']}_set dst -j ACCEPT """,
-                    shell=True,
-                )
+            template_path = get_template_path("dmz_rules.j2")
+            with open(template_path, "r") as f:
+                template = Template(f.read())
+
+            script = template.render(dmz_id=dmz_id, mappings=mappings)
+            subprocess.run(script, shell=True, check=True)
 
     @classmethod
     def get_rule_ids(cls, user_id, table=None, chain="FORWARD"):
@@ -110,34 +119,46 @@ class FirewallTool:
             pass
 
         subprocess.run(
-            "iptables-restore iptables-start.save",
+            "iptables-restore < iptables-start.save",
             shell=True,
         )
         logger.info("Build firewall")
 
-        user_page = UserDao().query_all()
-        for u in user_page["data"]:
-            cls.create_user(u["id"])
+        with UserDao() as user_dao:
+            user_page = user_dao.query_all()
+            for u in user_page["data"]:
+                cls.create_user(u["id"])
 
-        policy_page = PolicyDao().query_all()
-        if "data" in policy_page:
-            for p in policy_page["data"]:
-                cls.create_policy_chain(p["id"])
-                cls.refresh_policy_chain(p["id"])
+        with PolicyDao() as policy_dao:
+            policy_page = policy_dao.query_all()
+            if "data" in policy_page:
+                for p in policy_page["data"]:
+                    cls.create_policy_chain(p["id"])
+                    cls.refresh_policy_chain(p["id"])
 
-        srv_page = DMZServiceDao().query_all()
-        if "data" in srv_page:
-            for s in srv_page["data"]:
-                cls.refresh_service(s["id"])
+        with DMZServiceDao() as srv_dao:
+            srv_page = srv_dao.query_all()
+            if "data" in srv_page:
+                for s in srv_page["data"]:
+                    cls.refresh_service(s["id"])
 
     @classmethod
-    def refresh_sessions(cls, user_id):
-        """Refresh active session firewall rules for a user ID.
+    def refresh_user_chain(cls, user_id):
+        """Refresh active session firewall rules and ipset for a user ID.
 
         :param user_id: User identifier.
         :type user_id: str
         """
         logger.info(f"Refresh {user_id} chain")
+        with VPNSessionDao() as s_model:
+            session = s_model.get_by_user_id(user_id)
+            if session and session.get("local_ip"):
+                subprocess.run(
+                    f"ipset add {user_id}_set {session['local_ip']} -exist",
+                    shell=True,
+                )
+
+    refresh_sessions = refresh_user_chain
 
     @classmethod
     def create_policy_chain(cls, policy_id):
@@ -150,46 +171,24 @@ class FirewallTool:
 
     @classmethod
     def refresh_policy_chain(cls, policy_id):
-        """Flush and rebuild iptables rules for a policy chain.
+        """Flush and rebuild iptables rules for a policy chain using Jinja2 template.
 
         :param policy_id: Policy identifier.
         :type policy_id: str
         """
         logger.info(f"Refresh policy p_{policy_id}")
 
-        model = PolicyDao()
+        with PolicyDao() as model:
+            policy = model.get_by_id(policy_id)
 
-        subprocess.run(
-            f"iptables -F p_{policy_id}",
-            shell=True,
-            check=True,
-            stderr=subprocess.DEVNULL,
-        )
-        policy = model.get_by_id(policy_id)
         if policy:
-            for addr in policy["networks"]:
-                subprocess.run(
-                    f"""iptables -A p_{policy_id} \
-                                    -d {addr} \
-                                    -m state --state NEW,ESTABLISHED,RELATED \
-                                    -j ACCEPT""",
-                    shell=True,
-                    check=True,
-                    stderr=subprocess.DEVNULL,
-                )
-            for c in policy["clients"]:
-                subprocess.run(
-                    f"""iptables -A p_{policy_id} \
-                                -m set --match-set {c['id']}_set dst \
-                                -m state --state NEW,ESTABLISHED,RELATED \
-                                -j ACCEPT""",
-                    shell=True,
-                    check=True,
-                    stderr=subprocess.DEVNULL,
-                )
-            subprocess.run(
-                f"""iptables -A p_{policy_id} -j RETURN""",
-                shell=True,
-                check=True,
-                stderr=subprocess.DEVNULL,
+            template_path = get_template_path("policy_rules.j2")
+            with open(template_path, "r") as f:
+                template = Template(f.read())
+
+            script = template.render(
+                policy_id=policy_id,
+                networks=policy.get("networks", []),
+                clients=policy.get("clients", []),
             )
+            subprocess.run(script, shell=True, check=True, stderr=subprocess.DEVNULL)

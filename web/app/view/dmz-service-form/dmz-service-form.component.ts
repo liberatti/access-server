@@ -97,18 +97,19 @@ export class DMZServiceFormComponent implements OnInit {
 
     dialogRef.afterClosed().subscribe((result) => {
       if (result) {
-        let arr = this.form.value.port_mappings as Array<PortMapping>;
-        arr.push(result);
-        this.form.get('port_mappings')?.reset(arr);
+        const current = (this.form.get('port_mappings')?.value || []) as Array<PortMapping>;
+        const updated = [...current, result];
+        this.form.get('port_mappings')?.setValue(updated);
+        this.form.markAsDirty();
       }
     });
   }
 
-
   onRemovePort(keyword: any): void {
-    if (this.form.value.port_mappings != null) {
-      this.form.value.port_mappings = this.form.value.port_mappings.filter(port => port.id !== keyword);
-    }
+    const current = (this.form.get('port_mappings')?.value || []) as Array<PortMapping>;
+    const updated = current.filter(port => port.id !== keyword && port.user?.id !== keyword);
+    this.form.get('port_mappings')?.setValue(updated);
+    this.form.markAsDirty();
   }
 
   compareFn(object1: any, object2: any) {

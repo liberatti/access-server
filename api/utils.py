@@ -1,6 +1,7 @@
 import os
 import sys
 import threading
+import config
 
 
 def handle_sigterm(signum, frame):
@@ -18,3 +19,17 @@ def chmod_r(path, mode, recursive=False):
             for filename in files:
                 os.chmod(os.path.join(root, filename), mode)
     os.chmod(path, mode)
+
+
+def get_template_path(filename):
+    """Resolve template file path using config.BASE_BATH or config.main_path.
+
+    :param filename: Template file name.
+    :type filename: str
+    :return: Absolute or resolved path to template file.
+    :rtype: str
+    """
+    path = os.path.join(getattr(config, "BASE_BATH", "/opt/access-server"), "templates", filename)
+    if not os.path.exists(path):
+        path = os.path.join(config.main_path, "templates", filename)
+    return path

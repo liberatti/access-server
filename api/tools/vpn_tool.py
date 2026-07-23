@@ -5,9 +5,11 @@ import socket
 import subprocess
 import time
 from flask import json
+from jinja2 import Template
 import psutil
+import config
 from api.model.user_model import UserDao
-from api.utils import chmod_r
+from api.utils import chmod_r, get_template_path
 from api.tools.firewall_tool import FirewallTool
 from api.tools.pki_tool import PKITool
 from api.model.vpn_model import VPNSessionDao
@@ -54,29 +56,30 @@ class VPNTool:
     def session_monitor(cls):
         """Monitor active VPN sessions and refresh firewall rules on state changes."""
         logger.debug("Session monitor has started")
-        model = VPNSessionDao()
-        sessions = model.query_all()
-        for s in sessions["data"]:
-            if "pending" in s["state"]:
-                logger.info(f"User {s['user_id']} connected, bind {s['local_ip']}")
-                model.update_by_id(s["id"], {"state": "activated"})
-                model.commit()
-                FirewallTool.refresh_user_chain(s["user_id"])
+        with VPNSessionDao() as model:
+            sessions = model.query_all()
+            for s in sessions["data"]:
+                if "pending" in s["state"]:
+                    logger.info(f"User {s['user_id']} connected, bind {s['local_ip']}")
+                    model.update_by_id(s["id"], {"state": "activated"})
+                    model.commit()
+                    FirewallTool.refresh_user_chain(s["user_id"])
 
-                policies = PolicyClientDao().get_by_client(s["user_id"])
-                for p in policies:
-                    FirewallTool.refresh_policy_chain(p["id"])
+                    with PolicyClientDao() as p_model:
+                        policies = p_model.get_by_client(s["user_id"])
+                        for p in policies:
+                            FirewallTool.refresh_policy_chain(p["id"])
 
-            if "disconnect" in s["state"]:
-                logger.info(f"User {s['user_id']} disconnected")
-                model.delete_by_user_id(s["user_id"])
-                model.commit()
-                FirewallTool.refresh_user_chain(s["user_id"])
+                if "disconnect" in s["state"]:
+                    logger.info(f"User {s['user_id']} disconnected")
+                    model.delete_by_user_id(s["user_id"])
+                    model.commit()
+                    FirewallTool.refresh_user_chain(s["user_id"])
 
-                policies = PolicyClientDao().get_by_client(s["user_id"])
-                for p in policies:
-                    FirewallTool.refresh_policy_chain(p["id"])
-        model.close()
+                    with PolicyClientDao() as p_model:
+                        policies = p_model.get_by_client(s["user_id"])
+                        for p in policies:
+                            FirewallTool.refresh_policy_chain(p["id"])
 
     @classmethod
     def is_active(cls):
@@ -157,9 +160,9 @@ class VPNTool:
         """
         logger.info("Starting server")
 
-        daoSession = VPNSessionDao()
-        daoSession.delete_all()
-        daoSession.commit()
+        with VPNSessionDao() as daoSession:
+            daoSession.delete_all()
+            daoSession.commit()
 
         chmod_r("data", 0o777, recursive=True)
         with open("data/config.json", "r") as a:
@@ -239,15 +242,15 @@ class VPNTool:
         :type user_id: str
         """
         PKITool.remove_client(user_id)
-        model = PolicyClientDao()
-        policies = model.get_by_client(user_id)
-        if policies:
-            for p in policies:
-                FirewallTool.refresh_policy_chain(p["id"])
+        with PolicyClientDao() as model:
+            policies = model.get_by_client(user_id)
+            if policies:
+                for p in policies:
+                    FirewallTool.refresh_policy_chain(p["id"])
 
     @classmethod
     def get_openvpn_client(cls, user_id, target="default"):
-        """Generate OpenVPN client configuration file content (.ovpn).
+        """Generate OpenVPN client configuration file content (.ovpn) using Jinja2 template.
 
         :param user_id: User identifier.
         :type user_id: str
@@ -256,60 +259,49 @@ class VPNTool:
         :return: Complete OpenVPN client configuration string.
         :rtype: str
         """
-        model = UserDao()
+        with UserDao() as model:
+            user = model.get_by_id(user_id)
+
         with open("data/config.json", "r") as a:
             config = json.loads(a.read())
 
         with open(f"{PKITool.pki_dir}/tc.key", "r") as a:
-            tls_key = a.read()
+            tls_key = a.read().strip()
 
         with open(f"{PKITool.pki_dir}/ca.crt", "r") as a:
-            ca_cert = a.read()
+            ca_cert = a.read().strip()
 
         with open(f"{PKITool.pki_dir}/issued/{user_id}.crt", "r") as a:
-            cli_crt = re.findall(PKITool.re_pem, a.read())[0]
+            cli_crt = re.findall(PKITool.re_pem, a.read())[0].strip()
 
         with open(f"{PKITool.pki_dir}/private/{user_id}.key", "r") as a:
-            cli_key = a.read()
+            cli_key = a.read().strip()
 
-        cli_config = [
-            "client",
-            "dev tun",
-            "proto tcp",
-            f"remote {config['public_address']} {config['public_port']}",
-            "nobind",
-            "remote-cert-tls server",
-            "auth SHA512",
-            "verb 3",
-            "keepalive 10 60",
-            "auth-user-pass",
-            "<tls-crypt>",
-            tls_key,
-            "</tls-crypt>",
-            "<ca>",
-            ca_cert,
-            "</ca>",
-            "<cert>",
-            cli_crt,
-            "</cert>",
-            "<key>",
-            cli_key,
-            "</key>",
-        ]
+        public_addr = config.get("public_address") or config.get("host") or "127.0.0.1"
+        public_port = config.get("public_port") or config.get("port") or 1194
 
-        if "default" in target:
-            cli_config.append("persist-key")
-            cli_config.append("persist-tun")
-            cli_config.append("resolv-retry infinite")
-            cli_config.append("ping-timer-rem")
-
-        user = model.get_by_id(user_id)
-        if "policies" in user:
+        routes = []
+        if user and "policies" in user:
             for p in user["policies"]:
                 if "networks" in p:
                     for net in p["networks"]:
                         rede = ipaddress.IPv4Network(net)
-                        ip = str(rede.network_address)
-                        mask = str(rede.netmask)
-                        cli_config.append(f"route {ip} {mask}")
-        return "\n".join(cli_config)
+                        routes.append({
+                            "ip": str(rede.network_address),
+                            "mask": str(rede.netmask)
+                        })
+
+        template_path = get_template_path("client.ovpn.j2")
+        with open(template_path, "r") as f:
+            template = Template(f.read())
+
+        return template.render(
+            public_addr=public_addr,
+            public_port=public_port,
+            tls_key=tls_key,
+            ca_cert=ca_cert,
+            cli_crt=cli_crt,
+            cli_key=cli_key,
+            target=target,
+            routes=routes,
+        )

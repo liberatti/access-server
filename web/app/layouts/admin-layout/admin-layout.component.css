@@ -24,6 +24,13 @@
   font-family: 'Poppins', sans-serif;
   color: var(--text-primary);
 }
+.brand-logo {
+  height: 28px;
+  width: 28px;
+  object-fit: contain;
+  margin-right: 8px;
+  vertical-align: middle;
+}
 .brand-icon {
   color: var(--accent-blue) !important;
   margin-right: 6px;

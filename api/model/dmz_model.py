@@ -97,16 +97,22 @@ class DMZServiceDao(DuckDAO):
         :return: True if update succeeded.
         :rtype: bool
         """
+        port_mappings = None
         if "port_mappings" in vo:
             port_mappings = vo.pop("port_mappings")
+
+        vo = self.from_dict(vo)
+        vo.pop("_id", None)
+        res = super().update_by_id(pk, vo)
+
+        if port_mappings is not None:
             p_model = PortMappingDao(connection=self.conn)
             p_model.delete_by_dmz(pk)
             for pm in port_mappings:
                 pm.update({"dmz_id": pk})
                 p_model.persist(pm)
 
-        vo = self.from_dict(vo)
-        return super().update_by_id(pk, vo)
+        return res
 
     def get_descr(self, id):
         """Retrieve description details for a DMZ service.
@@ -172,8 +178,7 @@ class PortMappingDao(DuckDAO):
                 dmz_id varchar(12),
                 user_port integer,
                 bind_port integer,
-                protocol varchar(10),
-                FOREIGN KEY (user_id) REFERENCES dmz(_id)
+                protocol varchar(10)
             )
             """
         )
@@ -215,8 +220,16 @@ class PortMappingDao(DuckDAO):
         :return: Generated primary key ID.
         :rtype: str
         """
-        user = vo.pop("user")
-        user_id = user.get("id") or user.get("_id")
+        user_id = vo.get("user_id")
+        if "user" in vo and vo["user"]:
+            user = vo.pop("user")
+            if isinstance(user, dict):
+                user_id = user.get("id") or user.get("_id") or user_id
+            elif isinstance(user, str):
+                user_id = user
+        else:
+            vo.pop("user", None)
+
         vo.update({"user_id": user_id})
 
         vo = self.from_dict(vo)
