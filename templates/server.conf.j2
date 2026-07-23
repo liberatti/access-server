@@ -1,0 +1,26 @@
+port {{ port }}
+proto tcp
+dev tun
+ca {{ pki_dir }}/ca.crt
+cert {{ pki_dir }}/issued/{{ name }}.crt
+key {{ pki_dir }}/private/{{ name }}.key
+dh {{ pki_dir }}/dh.pem
+auth SHA512
+tls-crypt {{ pki_dir }}/tc.key
+topology subnet
+server {{ subnet }}
+user nobody
+group nobody
+persist-key
+persist-tun
+verb 3
+keepalive 10 60
+script-security 2
+auth-user-pass-verify openvpn-adapter.py via-file
+client-connect openvpn-adapter.py
+client-disconnect openvpn-adapter.py
+crl-verify {{ pki_dir }}/crl.pem
+management 127.0.0.1 23000
+{% for r in routes %}
+route {{ r.ip }} {{ r.mask }}
+{% endfor %}

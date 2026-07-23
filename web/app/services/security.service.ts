@@ -15,8 +15,14 @@ export class ServerService extends APIService<ServerConfig, string> {
     getStatus(): Observable<ServerConfig> {
         return this.httpClient.get<ServerConfig>(this.END_POINT + "/status");
     }
+    getConfig(): Observable<any> {
+        return this.httpClient.get<any>(this.END_POINT + "/activate");
+    }
     activate(data: ServerConfig): Observable<ServerConfig> {
         return this.httpClient.post<ServerConfig>(this.END_POINT + "/activate", data);
+    }
+    updateConfig(data: any): Observable<any> {
+        return this.httpClient.put<any>(this.END_POINT + "/activate", data);
     }
 }
 

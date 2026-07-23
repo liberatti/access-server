@@ -62,18 +62,14 @@ class VPNTool:
                 if "pending" in s["state"]:
                     logger.info(f"User {s['user_id']} connected, bind {s['local_ip']}")
                     model.update_by_id(s["id"], {"state": "activated"})
-                    model.commit()
                     FirewallTool.refresh_user_chain(s["user_id"])
-
                     with PolicyClientDao() as p_model:
                         policies = p_model.get_by_client(s["user_id"])
                         for p in policies:
                             FirewallTool.refresh_policy_chain(p["id"])
-
                 if "disconnect" in s["state"]:
                     logger.info(f"User {s['user_id']} disconnected")
                     model.delete_by_user_id(s["user_id"])
-                    model.commit()
                     FirewallTool.refresh_user_chain(s["user_id"])
 
                     with PolicyClientDao() as p_model:
@@ -125,21 +121,24 @@ class VPNTool:
         :rtype: int or None
         """
         pid_file = "server.pid"
-        pid = None
         if os.path.exists(pid_file):
-            with open(pid_file, "r") as file:
-                try:
-                    pid = int("".join(file.readlines()))
-                    if pid:
-                        processo = psutil.Process(pid)
-                        is_running = processo.is_running()
-                        if not is_running:
-                            os.remove(pid_file)
-                        else:
-                            return pid
-                except Exception:
-                    os.remove(pid_file)
-        return pid
+            try:
+                with open(pid_file, "r") as file:
+                    content = file.read().strip()
+                    if content:
+                        pid = int(content)
+                        if psutil.pid_exists(pid):
+                            p = psutil.Process(pid)
+                            if p.is_running():
+                                return pid
+            except (ValueError, psutil.NoSuchProcess, OSError):
+                pass
+
+            try:
+                os.remove(pid_file)
+            except OSError:
+                pass
+        return None
 
     @classmethod
     def restart_service(cls):
@@ -147,8 +146,11 @@ class VPNTool:
         pid = cls.__get_pid()
         if pid:
             logger.info("VPN is running, reload required")
-            p = psutil.Process(pid)
-            p.kill()
+            try:
+                p = psutil.Process(pid)
+                p.kill()
+            except (psutil.NoSuchProcess, OSError) as e:
+                logger.warning(f"Process {pid} was not running: {e}")
         cls.start_service(wait=False)
 
     @classmethod
@@ -162,7 +164,6 @@ class VPNTool:
 
         with VPNSessionDao() as daoSession:
             daoSession.delete_all()
-            daoSession.commit()
 
         chmod_r("data", 0o777, recursive=True)
         with open("data/config.json", "r") as a:
@@ -190,40 +191,28 @@ class VPNTool:
             config.get("subnet")
             or f"{config.get('network', '10.8.0.0')} {config.get('netmask', '255.255.255.0')}"
         )
-        srv_config = [
-            f"port {cls.__PORT}",
-            "proto tcp",
-            "dev tun",
-            f"ca {PKITool.pki_dir}/ca.crt",
-            f"cert {PKITool.pki_dir}/issued/{config['name']}.crt",
-            f"key {PKITool.pki_dir}/private/{config['name']}.key",
-            f"dh {PKITool.pki_dir}/dh.pem",
-            "auth SHA512",
-            f"tls-crypt {PKITool.pki_dir}/tc.key",
-            "topology subnet",
-            f"server {subnet}",
-            "user nobody",
-            "group nobody",
-            "persist-key",
-            "persist-tun",
-            "verb 3",
-            "keepalive 10 60",
-            "script-security 2",
-            "auth-user-pass-verify openvpn-adapter.py via-file",
-            "client-connect openvpn-adapter.py",
-            "client-disconnect openvpn-adapter.py",
-            f"crl-verify {PKITool.pki_dir}/crl.pem",
-            "management 127.0.0.1 23000",
-        ]
+        routes = []
         if "networks" in config:
             for r in config["networks"]:
                 rede = ipaddress.IPv4Network(r)
-                ip = str(rede.network_address)
-                mask = str(rede.netmask)
-                srv_config.append(f"route {ip} {mask}")
+                routes.append(
+                    {"ip": str(rede.network_address), "mask": str(rede.netmask)}
+                )
+
+        template_path = get_template_path("server.conf.j2")
+        with open(template_path, "r") as f:
+            template = Template(f.read())
+
+        server_conf_content = template.render(
+            port=cls.__PORT,
+            name=config["name"],
+            pki_dir=PKITool.pki_dir,
+            subnet=subnet,
+            routes=routes,
+        )
 
         with open("server.conf", "w") as f:
-            f.write("\n".join(srv_config))
+            f.write(server_conf_content)
 
     @classmethod
     def create_client(cls, user_id):
@@ -286,10 +275,9 @@ class VPNTool:
                 if "networks" in p:
                     for net in p["networks"]:
                         rede = ipaddress.IPv4Network(net)
-                        routes.append({
-                            "ip": str(rede.network_address),
-                            "mask": str(rede.netmask)
-                        })
+                        routes.append(
+                            {"ip": str(rede.network_address), "mask": str(rede.netmask)}
+                        )
 
         template_path = get_template_path("client.ovpn.j2")
         with open(template_path, "r") as f:

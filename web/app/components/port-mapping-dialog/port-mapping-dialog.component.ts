@@ -6,8 +6,10 @@ import { MatCardModule } from '@angular/material/card';
 import { MatOptionModule } from '@angular/material/core';
 import { MatDialogRef, MatDialogActions, MatDialogClose, MatDialogContent, MatDialogTitle } from '@angular/material/dialog';
 import { MatFormFieldModule } from '@angular/material/form-field';
+import { MatIconModule } from '@angular/material/icon';
 import { MatInputModule } from '@angular/material/input';
 import { MatSelectModule } from '@angular/material/select';
+import { TranslateModule } from '@ngx-translate/core';
 import { PortMapping, User } from 'web/app/models/security';
 import { PortMappingService, UserService } from 'web/app/services/security.service';
 
@@ -20,6 +22,8 @@ import { PortMappingService, UserService } from 'web/app/services/security.servi
         MatInputModule,
         FormsModule, MatCardModule,
         MatButtonModule,
+        MatIconModule,
+        TranslateModule,
         MatDialogTitle,
         MatDialogContent,
         MatDialogActions,

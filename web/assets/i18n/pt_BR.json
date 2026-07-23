@@ -5,6 +5,7 @@
     "policies": "Políticas de Acesso",
     "dmzServices": "Serviços DMZ",
     "serverStatus": "Status do Servidor",
+    "serverSettings": "Configuração do Servidor",
     "portMapping": "Mapeamento de Portas",
     "userForm": "Formulário de Usuário",
     "policyForm": "Formulário de Política",
@@ -27,10 +28,16 @@
     "add": "Adicionar",
     "no": "Não",
     "ok": "Ok",
-    "login": "ENTRAR"
+    "login": "ENTRAR",
+    "logout": "Sair",
+    "about": "Sobre"
   },
   "attr": {
     "name": "Nome",
+    "serverName": "Nome do Servidor",
+    "vpnNetwork": "Rede VPN",
+    "netmask": "Máscara de Rede",
+    "pushedRoutes": "Rotas Publicadas",
     "username": "Nome de Usuário",
     "role": "Perfil / Função",
     "activeSession": "Sessão Ativa",
@@ -59,6 +66,9 @@
     "username": "Digite o nome de usuário",
     "password": "Digite a senha",
     "name": "Digite o nome",
+    "serverName": "ex. AccessServer-VPN",
+    "vpnNetwork": "ex. 10.8.0.0",
+    "netmask": "ex. 255.255.255.0",
     "description": "Digite a descrição do serviço",
     "selectClient": "Selecione um cliente",
     "selectPolicy": "Selecione a política de acesso"
@@ -67,6 +77,7 @@
     "users": "Usuários",
     "policies": "Políticas",
     "dmzServices": "Serviços DMZ",
+    "settings": "Configurações",
     "system": "Sistema",
     "about": "Sobre"
   },

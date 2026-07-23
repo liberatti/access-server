@@ -39,6 +39,7 @@
 </mat-dialog-content>
 
 <mat-dialog-actions align="end">
-  <button type="button" mat-button (click)="onDismiss()">No</button>
-  <button type="button" mat-raised-button color="primary" (click)="onConfirm()" cdkFocusInitial>Ok</button>
+  <button type="button" mat-button (click)="onDismiss()"> {{ 'actions.cancel' | translate }}</button>
+  <button type="button" mat-raised-button color="primary" (click)="onConfirm()" cdkFocusInitial>
+    <mat-icon>save</mat-icon> {{ 'actions.save' | translate }}</button>
 </mat-dialog-actions>

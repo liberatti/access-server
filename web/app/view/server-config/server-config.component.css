@@ -1,0 +1,17 @@
+.full-width {
+  width: 100%;
+}
+.mat-row {
+  display: flex;
+  gap: 16px;
+  margin-bottom: 8px;
+}
+.mat-col-6 {
+  flex: 1;
+}
+.mat-col-12 {
+  width: 100%;
+}
+.mt-2 {
+  margin-top: 16px;
+}

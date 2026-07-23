@@ -8,6 +8,7 @@ import { PolicyListComponent } from './view/policy-list/policy-list.component';
 import { PolicyFormComponent } from './view/policy-form/policy-form.component';
 import { DmzServiceListComponent } from './view/dmz-service-list/dmz-service-list.component';
 import { DMZServiceFormComponent } from './view/dmz-service-form/dmz-service-form.component';
+import { ServerConfigComponent } from './view/server-config/server-config.component';
 
 export const routes: Routes = [
     {
@@ -42,6 +43,13 @@ export const routes: Routes = [
             { path: '', component: PolicyListComponent },
             { path: 'add', component: PolicyFormComponent },
             { path: 'edit/:id', component: PolicyFormComponent },
+        ]
+    },
+    {
+        path: 'system',
+        component: AdminLayoutComponent,
+        children: [
+            { path: '', component: ServerConfigComponent },
         ]
     },
     {

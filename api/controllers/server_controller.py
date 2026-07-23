@@ -40,3 +40,19 @@ def update() -> Response:
 
     VPNTool.restart_service()
     return response_ok("Active")
+
+
+@routes.route("/activate", methods=["GET"])
+def get_config() -> Response:
+    """Get current server configuration.
+
+    :return: Response containing config dictionary.
+    :rtype: flask.Response
+    """
+    try:
+        with open("data/config.json", "r") as f:
+            config_dict = json.loads(f.read())
+        return response_data(config_dict)
+    except Exception:
+        return response_data({})
+

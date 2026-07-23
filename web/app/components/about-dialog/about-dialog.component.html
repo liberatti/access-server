@@ -1,15 +1,26 @@
-<mat-card>
-  <mat-card-content>
-    <h2 mat-dialog-title>About</h2>
-    <mat-dialog-content>
-      <p>Este é um servidor de acesso baseado em OpenVPN.</p>
-      <p>Confira o projeto no GitHub:</p>
-      <a href="https://github.com/liberatti/access-server" target="_blank">
-        https://github.com/liberatti/access-server
-      </a>
-    </mat-dialog-content>
-    <mat-dialog-actions>
-      <button mat-raised-button (click)="onDismiss()">Close</button>
-    </mat-dialog-actions>
-  </mat-card-content>
-</mat-card>
+<h2 mat-dialog-title style="display: flex; align-items: center; gap: 12px; margin-bottom: 0;">
+  <img src="assets/icon.png" alt="Access Server Logo" style="width: 36px; height: 36px; object-fit: contain;">
+  <span>Access Server</span>
+  <span style="font-size: 0.75em; background: rgba(123,44,191,0.1); color: var(--primary-color, #7b2cbf); padding: 2px 8px; border-radius: 12px; font-weight: 600;">
+    v{{version}}
+  </span>
+</h2>
+
+<mat-dialog-content style="padding-top: 16px;">
+  <p style="color: var(--text-secondary, #64748b); line-height: 1.6; margin-bottom: 16px;">
+    Advanced OpenVPN Access & Zero-Trust Control Panel. Managed network access control and multi-client routing solution.
+  </p>
+
+  <div style="background: var(--background-darker, #f8fafc); padding: 12px 16px; border-radius: 8px; border: 1px solid var(--border-color, #e2e8f0); display: flex; align-items: center; justify-content: space-between;">
+    <span style="font-weight: 500; font-size: 0.9em;">GitHub Repository</span>
+    <a mat-stroked-button color="primary" href="https://github.com/liberatti/access-server" target="_blank" style="border-radius: 6px;">
+      <mat-icon style="margin-right: 4px;">open_in_new</mat-icon> GitHub
+    </a>
+  </div>
+</mat-dialog-content>
+
+<mat-dialog-actions align="end" style="padding: 16px 24px 20px 24px;">
+  <button type="button" mat-raised-button color="primary" (click)="onDismiss()">
+    {{ 'actions.ok' | translate }}
+  </button>
+</mat-dialog-actions>

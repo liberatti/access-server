@@ -29,7 +29,6 @@
                                             {{c.name}}
                                         </mat-option>
                                     </mat-select>
-                                    <mat-hint>{{ 'hints.selectClient' | translate }}</mat-hint>
                                 </mat-form-field>
                                 <mat-card-content>
                                     <mat-chip-listbox>
@@ -50,7 +49,6 @@
                                 <mat-form-field class="full-width" appearance="outline">
                                     <mat-label>{{ 'attr.permitNetwork' | translate }}</mat-label>
                                     <input matInput formControlName="addr" [placeholder]="'hints.networkIp' | translate">
-                                    <mat-hint>{{ 'hints.networkIp' | translate }}</mat-hint>
                                     <button type="button" color="primary" matSuffix mat-icon-button (click)="onAddNetwork()">
                                         <mat-icon>add</mat-icon>
                                     </button>
@@ -73,11 +71,11 @@
             </div>
         </mat-card-content>
         <mat-card-actions align="end">
+            <button type="button" mat-button [routerLink]="['/policy']">
+                {{ 'actions.cancel' | translate }}
+            </button>
             <button id="save-btn" type="button" (click)="onSubmit()" mat-raised-button color="primary">
                 <mat-icon>save</mat-icon> {{ 'actions.save' | translate }}
-            </button>
-            <button mat-mini-fab color="primary" [routerLink]="['/policy']">
-                <mat-icon>keyboard_return</mat-icon>
             </button>
         </mat-card-actions>
     </mat-card>

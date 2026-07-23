@@ -2,7 +2,7 @@
   <mat-toolbar class="admin-header">
     <span class="brand-text">
       <img src="assets/icon.png" class="brand-logo" alt="Access Server Logo">
-      Access Server <small>{{version}}</small>
+      <small>{{version}}</small>
     </span>
 
     <div class="nav-links">
@@ -17,6 +17,10 @@
       <a mat-button routerLink="/dmz" routerLinkActive="active">
         <mat-icon>webhook</mat-icon>
         <span>{{ 'nav.dmzServices' | translate }}</span>
+      </a>
+      <a mat-button routerLink="/system" routerLinkActive="active">
+        <mat-icon>settings</mat-icon>
+        <span>{{ 'nav.settings' | translate }}</span>
       </a>
       <button mat-button (click)="showAbout()">
         <mat-icon>info</mat-icon>
