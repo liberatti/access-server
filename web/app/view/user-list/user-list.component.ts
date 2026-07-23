@@ -1,4 +1,4 @@
-import { AfterViewInit, Component, OnInit, ViewChild } from '@angular/core';
+import { AfterViewInit, Component, OnInit } from '@angular/core';
 import { ReactiveFormsModule } from '@angular/forms';
 import { MatMomentDateModule } from '@angular/material-moment-adapter';
 import { MatAutocompleteModule } from '@angular/material/autocomplete';
@@ -14,7 +14,7 @@ import { MatIconModule } from '@angular/material/icon';
 import { MatInputModule } from '@angular/material/input';
 import { MatListModule } from '@angular/material/list';
 import { MatMenuModule } from '@angular/material/menu';
-import { MatPaginator, MatPaginatorModule } from '@angular/material/paginator';
+import { MatPaginatorModule } from '@angular/material/paginator';
 import { MatProgressBarModule } from '@angular/material/progress-bar';
 import { MatRadioModule } from '@angular/material/radio';
 import { MatSelectModule } from '@angular/material/select';
@@ -48,7 +48,7 @@ import { FileSaverModule, FileSaverService } from 'ngx-filesaver';
 })
 export class UserListComponent implements OnInit, AfterViewInit {
     userDC: string[] = ['name', 'sessions', 'role', 'action'];
-    userDS: MatTableDataSource<never>;
+    userDS: MatTableDataSource<User>;
     userPA = new DefaultPageMeta();
 
     constructor(
@@ -57,20 +57,24 @@ export class UserListComponent implements OnInit, AfterViewInit {
         private confirmDialog: MatDialog,
         private fileSaver: FileSaverService
     ) {
-        this.userDS = new MatTableDataSource<never>;
-
+        this.userDS = new MatTableDataSource<User>();
     }
 
     ngOnInit(): void {
         this.updateGridTable();
     }
+
     ngAfterViewInit() {
     }
+
     updateGridTable() {
-        this.userService.get(this.userPA).subscribe(data => {
-            if (data.metadata) {
-                this.userDS = new MatTableDataSource(data.data);
-                this.userPA.total_elements = data.metadata.total_elements;
+        this.userService.get(this.userPA).subscribe((res: any) => {
+            if (res.metadata) {
+                this.userPA.total_elements = res.metadata.total_elements || 0;
+                this.userDS.data = res.data;
+            } else {
+                this.userDS.data = [];
+                this.userPA.total_elements = 0;
             }
         });
     }
@@ -81,33 +85,28 @@ export class UserListComponent implements OnInit, AfterViewInit {
         this.updateGridTable();
     }
 
-
     donwloadConfig(user_id: string, target: string) {
         this.userService.getConfig(user_id, target).subscribe(data => {
             this.fileSaver.save(data, "client.ovpn");
         });
     }
+
     onSave() {
-        this.userService.get(this.userPA).subscribe(data => {
-            this.userDS = new MatTableDataSource(data.data);
-            this.userPA.total_elements = data.metadata.total_elements;
-        });
-        console.log("onSave");
+        this.updateGridTable();
     }
+
     onRemove(dto: User) {
         const dialogRef = this.confirmDialog.open(ConfirmDialogComponent, {
             data: { title: "Confirm user removal ", message: "Remove " + dto.name },
         });
 
         dialogRef.afterClosed().subscribe(result => {
-            // accepted
             if (result && dto.id) {
-                this.userService.removeById(dto.id).subscribe(data => {
+                this.userService.removeById(dto.id).subscribe(() => {
                     this.updateGridTable();
                     this.notificationService.openSnackBar('User removed');
                 });
             }
         });
     }
-
 }

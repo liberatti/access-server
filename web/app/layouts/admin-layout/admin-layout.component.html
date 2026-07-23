@@ -2,10 +2,9 @@
   <mat-toolbar class="admin-header">
     <span class="brand-text">
       <mat-icon class="brand-icon">vpn_key</mat-icon>
-      Access Server
-      <small>Admin</small>
+      Access Server <small>{{version}}</small>
     </span>
-    
+
     <div class="nav-links">
       <a mat-button routerLink="/user" routerLinkActive="active">
         <mat-icon>domain</mat-icon>
@@ -24,11 +23,11 @@
         <span>About</span>
       </button>
     </div>
-    
+
     <span class="spacer"></span>
-    
+
     <span class="user-greeting">{{user.username}}</span>
-    
+
     <button mat-button (click)="logout()" class="logout-btn">
       <mat-icon>logout</mat-icon> Logout
     </button>

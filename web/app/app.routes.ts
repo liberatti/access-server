@@ -6,18 +6,10 @@ import { PublicLayoutComponent } from './layouts/public-layout/public-layout.com
 import { UserFormComponent } from './view/user-form/user-form.component';
 import { PolicyListComponent } from './view/policy-list/policy-list.component';
 import { PolicyFormComponent } from './view/policy-form/policy-form.component';
-import { WizardComponent } from './view/wizard/wizard.component';
 import { DmzServiceListComponent } from './view/dmz-service-list/dmz-service-list.component';
 import { DMZServiceFormComponent } from './view/dmz-service-form/dmz-service-form.component';
 
 export const routes: Routes = [
-    {
-        path: 'wizard',
-        component: PublicLayoutComponent,
-        children: [
-            { path: '', component: WizardComponent },
-        ]
-    },
     {
         path: 'login',
         component: PublicLayoutComponent,
@@ -54,7 +46,7 @@ export const routes: Routes = [
     },
     {
         path: '**',
-        redirectTo: 'wizard',
+        redirectTo: 'login',
         pathMatch: 'full'
     }
 ];

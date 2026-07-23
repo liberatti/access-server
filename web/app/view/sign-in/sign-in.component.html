@@ -7,25 +7,25 @@
       <h1 class="brand-name">Access Server</h1>
       <p class="brand-subtitle">Advanced Access Control Panel</p>
     </div>
-    
+
     <mat-card class="login-card">
       <mat-card-header>
         <mat-card-title>Sign In</mat-card-title>
         <mat-card-subtitle>Enter your credentials to manage your VPN</mat-card-subtitle>
       </mat-card-header>
-      
+
       <mat-card-content>
         <mat-form-field class="full-width" appearance="outline">
           <mat-label>Username</mat-label>
-          <input id="username" matInput placeholder="Enter username" formControlName="username"
-                 autocomplete="username" type="text">
+          <input id="username" matInput placeholder="Enter username" formControlName="username" autocomplete="username"
+            type="text">
           <mat-icon matSuffix>person</mat-icon>
         </mat-form-field>
-        
+
         <mat-form-field class="full-width" appearance="outline">
           <mat-label>Password</mat-label>
           <input id="password" matInput placeholder="Enter password" formControlName="password" type="password"
-                 autocomplete="current-password">
+            autocomplete="current-password">
           <mat-icon matSuffix>lock</mat-icon>
         </mat-form-field>
 
@@ -43,8 +43,8 @@
       </mat-card-content>
 
       <mat-card-actions class="action-buttons">
-        <button mat-raised-button id="login" color="primary" class="login-btn btn-glow" (click)="login()">Sign In</button>
-        <button mat-button id="resetPassword" class="reset-btn" (click)="resetPassword()" type="button">Forgot Password?</button>
+        <button mat-raised-button id="login" color="primary" class="login-btn btn-glow" (click)="login()">Sign
+          In</button>
       </mat-card-actions>
     </mat-card>
   </form>

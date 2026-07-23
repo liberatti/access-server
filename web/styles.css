@@ -531,9 +531,9 @@ h1, h2, h3, h4, b, strong {
 
 /* --- Global Auth & Wizard Styles --- */
 .login-background {
-    background: radial-gradient(circle at 10% 20%, rgba(99, 102, 241, 0.12) 0%, rgba(0, 0, 0, 0) 50%),
-                radial-gradient(circle at 90% 80%, rgba(14, 165, 233, 0.12) 0%, rgba(0, 0, 0, 0) 50%),
-                linear-gradient(180deg, #07090e 0%, #030406 100%);
+    background: radial-gradient(circle at 10% 20%, rgba(79, 70, 229, 0.06) 0%, rgba(0, 0, 0, 0) 50%),
+                radial-gradient(circle at 90% 80%, rgba(2, 132, 199, 0.06) 0%, rgba(0, 0, 0, 0) 50%),
+                linear-gradient(180deg, #f8fafc 0%, #f1f5f9 100%);
     display: flex;
     justify-content: center;
     align-items: center;
@@ -572,7 +572,7 @@ h1, h2, h3, h4, b, strong {
     justify-content: center;
     box-shadow: 0 8px 24px var(--primary-glow);
     margin-bottom: 16px;
-    border: 1px solid rgba(255, 255, 255, 0.1);
+    border: 1px solid rgba(255, 255, 255, 0.2);
 }
 
 .brand-logo-container .brand-icon {
@@ -587,9 +587,7 @@ h1, h2, h3, h4, b, strong {
     font-size: 28px;
     font-weight: 800;
     margin: 0;
-    background: linear-gradient(135deg, #ffffff 0%, #cbd5e1 100%);
-    -webkit-background-clip: text;
-    -webkit-text-fill-color: transparent;
+    color: var(--text-primary);
     letter-spacing: -0.5px;
 }
 

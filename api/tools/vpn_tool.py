@@ -4,59 +4,56 @@ import re
 import socket
 import subprocess
 import time
-import traceback
-import bcrypt
 from flask import json
 import psutil
-from api.repository.user_model import UserDao
-from api.utils import chmod_r, logger
+from api.model.user_model import UserDao
+from api.utils import chmod_r
 from api.tools.firewall_tool import FirewallTool
 from api.tools.pki_tool import PKITool
-from api.repository.vpn_model import VPNSessionDao
-from api.repository.policy_model import PolicyClientDao
+from api.model.vpn_model import VPNSessionDao
+from api.model.policy_model import PolicyClientDao
+from nxcore.middleware.logging_manager import logger
 
 
 class VPNTool:
+    """Utility class for OpenVPN server management and client configuration."""
 
     __PORT = 1194
 
     @classmethod
     def update_crl(cls):
+        """Update and regenerate Certificate Revocation List (CRL)."""
         PKITool.gen_crl()
 
     @classmethod
     def initialize(cls, config):
+        """Initialize OpenVPN server configuration, PKI certificates, and start service.
+
+        :param config: Configuration dictionary containing server settings.
+        :type config: dict
+        """
         logger.info(f"Initialize server {config['name']}")
 
-        user_model = UserDao()
-        hashed = bcrypt.hashpw(
-            config.pop("admin_pass").encode("utf8"), bcrypt.gensalt()
-        )
-        pk = user_model.persist(
-            {
-                "name": "admin",
-                "username": config.pop("admin_user"),
-                "password": hashed.decode("utf-8"),
-                "role": "superuser",
-            }
-        )
-        user_model.commit()
-        user_model.close()
-
-        with open(f"data/config.json", "w") as f:
+        with open("data/config.json", "w") as f:
             f.write(json.dumps(config))
 
         PKITool.create_pki(config["name"])
-        cls.create_client(pk)
+        cls.create_client(config["admin_pk"])
         cls.start_service()
 
     @classmethod
     def register_disconnection(cls, user_id):
+        """Log user disconnection event.
+
+        :param user_id: User identifier.
+        :type user_id: str
+        """
         logger.info(f"User {user_id} disconnected")
 
     @classmethod
     def session_monitor(cls):
-        logger.debug(f"Session monitor has started")
+        """Monitor active VPN sessions and refresh firewall rules on state changes."""
+        logger.debug("Session monitor has started")
         model = VPNSessionDao()
         sessions = model.query_all()
         for s in sessions["data"]:
@@ -83,6 +80,11 @@ class VPNTool:
 
     @classmethod
     def is_active(cls):
+        """Check if OpenVPN server is bound and active on management port.
+
+        :return: True if service is active, False otherwise.
+        :rtype: bool
+        """
         try:
             with socket.create_connection(("127.0.0.1", cls.__PORT), timeout=5):
                 return True
@@ -92,6 +94,15 @@ class VPNTool:
 
     @classmethod
     def wait_bind(cls, interval=5, retry=6):
+        """Wait for OpenVPN server to bind to management port.
+
+        :param interval: Seconds between retry attempts.
+        :type interval: int
+        :param retry: Maximum number of retry attempts.
+        :type retry: int
+        :return: True if bound successfully, False if timed out.
+        :rtype: bool
+        """
         r = 0
         while r < retry:
             try:
@@ -105,7 +116,12 @@ class VPNTool:
 
     @classmethod
     def __get_pid(cls):
-        pid_file = f"server.pid"
+        """Retrieve active OpenVPN process PID from PID file.
+
+        :return: Process PID if running, else None.
+        :rtype: int or None
+        """
+        pid_file = "server.pid"
         pid = None
         if os.path.exists(pid_file):
             with open(pid_file, "r") as file:
@@ -124,42 +140,53 @@ class VPNTool:
 
     @classmethod
     def restart_service(cls):
+        """Restart active OpenVPN server process."""
         pid = cls.__get_pid()
         if pid:
-            logger.info(f"VPN is running, reload required")
+            logger.info("VPN is running, reload required")
             p = psutil.Process(pid)
             p.kill()
         cls.start_service(wait=False)
 
     @classmethod
     def start_service(cls, wait=True):
-        logger.info(f"Starting server")
+        """Start OpenVPN server background process.
+
+        :param wait: Whether to wait until server binds to port.
+        :type wait: bool
+        """
+        logger.info("Starting server")
 
         daoSession = VPNSessionDao()
         daoSession.delete_all()
         daoSession.commit()
 
         chmod_r("data", 0o777, recursive=True)
-        with open(f"data/config.json", "r") as a:
+        with open("data/config.json", "r") as a:
             config = json.loads(a.read())
             cls.__create_server(config)
-        if not os.path.exists(f"logs"):
-            os.mkdir(f"logs")
+        if not os.path.exists("logs"):
+            os.mkdir("logs")
 
         subprocess.Popen(
-            f"openvpn --config server.conf --log logs/server.log --writepid server.pid",
+            "openvpn --config server.conf --log logs/server.log --writepid server.pid",
             shell=True,
         )
         if wait:
             cls.wait_bind()
 
     @classmethod
-    def is_initialized(cls):
-        return os.path.exists(f"data/config.json")
-
-    @classmethod
     def __create_server(cls, config):
+        """Generate server.conf file based on server configuration dictionary.
+
+        :param config: Configuration dictionary containing server parameters.
+        :type config: dict
+        """
         logger.info(f"Creating server for {config['name']}")
+        subnet = (
+            config.get("subnet")
+            or f"{config.get('network', '10.8.0.0')} {config.get('netmask', '255.255.255.0')}"
+        )
         srv_config = [
             f"port {cls.__PORT}",
             "proto tcp",
@@ -171,7 +198,7 @@ class VPNTool:
             "auth SHA512",
             f"tls-crypt {PKITool.pki_dir}/tc.key",
             "topology subnet",
-            f"server {config['subnet']}",
+            f"server {subnet}",
             "user nobody",
             "group nobody",
             "persist-key",
@@ -179,11 +206,11 @@ class VPNTool:
             "verb 3",
             "keepalive 10 60",
             "script-security 2",
-            f"auth-user-pass-verify openvpn-adapter.py via-file",
-            f"client-connect openvpn-adapter.py",
-            f"client-disconnect openvpn-adapter.py",
+            "auth-user-pass-verify openvpn-adapter.py via-file",
+            "client-connect openvpn-adapter.py",
+            "client-disconnect openvpn-adapter.py",
             f"crl-verify {PKITool.pki_dir}/crl.pem",
-            f"management 127.0.0.1 23000",
+            "management 127.0.0.1 23000",
         ]
         if "networks" in config:
             for r in config["networks"]:
@@ -192,15 +219,25 @@ class VPNTool:
                 mask = str(rede.netmask)
                 srv_config.append(f"route {ip} {mask}")
 
-        with open(f"server.conf", "w") as f:
+        with open("server.conf", "w") as f:
             f.write("\n".join(srv_config))
 
     @classmethod
     def create_client(cls, user_id):
+        """Generate client certificates for a user ID.
+
+        :param user_id: User identifier.
+        :type user_id: str
+        """
         PKITool.create_client(user_id)
 
     @classmethod
     def remove_client(cls, user_id):
+        """Revoke client certificates and refresh policy chains.
+
+        :param user_id: User identifier.
+        :type user_id: str
+        """
         PKITool.remove_client(user_id)
         model = PolicyClientDao()
         policies = model.get_by_client(user_id)
@@ -210,8 +247,17 @@ class VPNTool:
 
     @classmethod
     def get_openvpn_client(cls, user_id, target="default"):
+        """Generate OpenVPN client configuration file content (.ovpn).
+
+        :param user_id: User identifier.
+        :type user_id: str
+        :param target: Target configuration profile type.
+        :type target: str
+        :return: Complete OpenVPN client configuration string.
+        :rtype: str
+        """
         model = UserDao()
-        with open(f"data/config.json", "r") as a:
+        with open("data/config.json", "r") as a:
             config = json.loads(a.read())
 
         with open(f"{PKITool.pki_dir}/tc.key", "r") as a:

@@ -1,4 +1,4 @@
-import { AfterViewInit, Component, OnInit, ViewChild } from '@angular/core';
+import { AfterViewInit, Component, OnInit } from '@angular/core';
 import { ReactiveFormsModule } from '@angular/forms';
 import { MatMomentDateModule } from '@angular/material-moment-adapter';
 import { MatAutocompleteModule } from '@angular/material/autocomplete';
@@ -14,7 +14,7 @@ import { MatIconModule } from '@angular/material/icon';
 import { MatInputModule } from '@angular/material/input';
 import { MatListModule } from '@angular/material/list';
 import { MatMenuModule } from '@angular/material/menu';
-import { MatPaginator, MatPaginatorModule } from '@angular/material/paginator';
+import { MatPaginatorModule } from '@angular/material/paginator';
 import { MatProgressBarModule } from '@angular/material/progress-bar';
 import { MatRadioModule } from '@angular/material/radio';
 import { MatSelectModule } from '@angular/material/select';
@@ -26,10 +26,10 @@ import { MatTooltipModule } from '@angular/material/tooltip';
 import { RouterModule } from '@angular/router';
 import { TranslateModule } from '@ngx-translate/core';
 import { ConfirmDialogComponent } from 'web/app/components/confirm-dialog/confirm-dialog.component';
-import { User } from 'web/app/models/security';
+import { DMZService } from 'web/app/models/security';
 import { DefaultPageMeta } from 'web/app/models/shared';
 import { NotificationService } from 'web/app/services/notification.service';
-import { FileSaverModule, FileSaverService } from 'ngx-filesaver';
+import { FileSaverModule } from 'ngx-filesaver';
 import { DMZServiceService } from 'web/app/services/dmz.service';
 
 @Component({
@@ -48,7 +48,7 @@ import { DMZServiceService } from 'web/app/services/dmz.service';
 })
 export class DmzServiceListComponent implements OnInit, AfterViewInit {
     dmzDC: string[] = ['name', 'port_mappings', 'action'];
-    dmzDS: MatTableDataSource<never>;
+    dmzDS: MatTableDataSource<DMZService>;
     dmzPA = new DefaultPageMeta();
 
     constructor(
@@ -56,20 +56,24 @@ export class DmzServiceListComponent implements OnInit, AfterViewInit {
         private dmzService: DMZServiceService,
         private confirmDialog: MatDialog
     ) {
-        this.dmzDS = new MatTableDataSource<never>;
-
+        this.dmzDS = new MatTableDataSource<DMZService>();
     }
 
     ngOnInit(): void {
         this.updateGridTable();
     }
+
     ngAfterViewInit() {
     }
+
     updateGridTable() {
-        this.dmzService.get(this.dmzPA).subscribe(data => {
-            if (data.metadata) {
-                this.dmzDS = new MatTableDataSource(data.data);
-                this.dmzPA.total_elements = data.metadata.total_elements;
+        this.dmzService.get(this.dmzPA).subscribe((res: any) => {
+            if (res.metadata) {
+                this.dmzPA.total_elements = res.metadata.total_elements || 0;
+                this.dmzDS.data = res.data;
+            } else {
+                this.dmzDS.data = [];
+                this.dmzPA.total_elements = 0;
             }
         });
     }
@@ -81,29 +85,21 @@ export class DmzServiceListComponent implements OnInit, AfterViewInit {
     }
 
     onSave() {
-        this.dmzService.get(this.dmzPA).subscribe(data => {
-            this.dmzDS = new MatTableDataSource(data.data);
-            this.dmzPA.total_elements = data.metadata.total_elements;
-        });
-        console.log("onSave");
+        this.updateGridTable();
     }
-    onRemove(dto: User) {
+
+    onRemove(dto: DMZService) {
         const dialogRef = this.confirmDialog.open(ConfirmDialogComponent, {
-            data: { title: "Confirm user removal ", message: "Remove " + dto.name },
+            data: { title: "Confirm service removal ", message: "Remove " + dto.name },
         });
 
         dialogRef.afterClosed().subscribe(result => {
-            // accepted
             if (result && dto.id) {
-                this.dmzService.removeById(dto.id).subscribe(data => {
+                this.dmzService.removeById(dto.id).subscribe(() => {
                     this.updateGridTable();
-                    this.notificationService.openSnackBar('User removed');
+                    this.notificationService.openSnackBar('Service removed');
                 });
             }
         });
     }
-
-
-
-
 }

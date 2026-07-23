@@ -17,35 +17,35 @@ export abstract class APIService<T, ID> implements APIOperations<T, ID> {
         protected injector: Injector,
         protected ctx: string
     ) {
-        const _REST_API_URL = injector.get(REST_API_URL)
-        this.httpClient = this.injector.get(HttpClient)
-        this.storageService = this.injector.get(LocalStorageService)
+        const _REST_API_URL = injector.get(REST_API_URL);
+        this.httpClient = this.injector.get(HttpClient);
+        this.storageService = this.injector.get(LocalStorageService);
         this.END_POINT = `${_REST_API_URL}/${ctx}`;
     }
 
-    get(pagging?: PageMeta): Observable<Page> {
+    get(pagging?: PageMeta): Observable<Page<T>> {
         let params = new HttpParams();
         if (pagging) {
             params = params.append('page', pagging.page);
             params = params.append('size', pagging.per_page);
         }
-        return this.httpClient.get<Page>(this.END_POINT, { params: params });
+        return this.httpClient.get<Page<T>>(this.END_POINT, { params: params });
     }
 
     getById(id: ID): Observable<T> {
         return this.httpClient.get<T>(this.END_POINT + "/" + id);
     }
 
-    getByName(name: string, pagging?: PageMeta): Observable<Page> {
+    getByName(name: string, pagging?: PageMeta): Observable<Page<T>> {
         let options = {
             params: new HttpParams()
-        }
+        };
         options.params = options.params.append("name", name);
         if (pagging) {
             options.params = options.params.append("page", pagging.page);
             options.params = options.params.append("size", pagging.per_page);
         }
-        return this.httpClient.get<Page>(this.END_POINT, options);
+        return this.httpClient.get<Page<T>>(this.END_POINT, options);
     }
 
     removeById(id: ID): Observable<T> {

@@ -5,4 +5,6 @@ schedule>=1.2.2
 bcrypt
 multidict
 psutil
-nxcore[web,sqlite] @ git+https://github.com/liberatti/nxcore@v1.0.5
+nxcore[web] @ git+https://github.com/liberatti/nxcore@v1.0.5
+duckdb
+bson

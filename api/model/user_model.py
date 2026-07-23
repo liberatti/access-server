@@ -1,18 +1,31 @@
-from nxcore.repository.sqlite3_dao import SQLite3DAO
-from api.utils import logger
+from nxcore.common_utils import gen_random_string
+from nxcore.middleware.logging_manager import logger
+from nxcore.repository.duckdb_dao import DuckDAO
+
 import config
 
-class UserDao(SQLite3DAO):
+
+class UserDao(DuckDAO):
+    """Data access object for users."""
+
     def __init__(self, connection=None, auto_commit=True):
+        """Initialize UserDao instance.
+
+        :param connection: Optional database connection instance.
+        :type connection: duckdb.DuckDBPyConnection or None
+        :param auto_commit: Whether to automatically commit operations.
+        :type auto_commit: bool
+        """
         super().__init__(
             db_path=config.DB_PATH,
             table_name="users",
             conn=connection,
-            auto_commit=auto_commit
+            auto_commit=auto_commit,
         )
+        self.connect()
 
     def create_schema(self):
-        self.connect()
+        """Create the users table schema if it does not exist."""
         self.ddl(
             f"""CREATE TABLE if not exists {self.table_name} (
                 _id varchar(12) PRIMARY KEY,
@@ -25,11 +38,25 @@ class UserDao(SQLite3DAO):
         )
 
     def from_dict(self, vo):
+        """Prepare value object dictionary before persisting.
+
+        :param vo: Dictionary containing user attributes.
+        :type vo: dict
+        :return: Transformed dictionary with normalized primary key.
+        :rtype: dict
+        """
         if vo and "id" in vo:
             vo["_id"] = vo.pop("id")
         return super().from_dict(vo)
 
     def to_dict(self, row):
+        """Transform database row into domain dictionary.
+
+        :param row: Database row record.
+        :type row: dict or None
+        :return: Entity dictionary including assigned policies or None.
+        :rtype: dict or None
+        """
         if row:
             if "_id" in row:
                 row["id"] = row.pop("_id")
@@ -38,13 +65,19 @@ class UserDao(SQLite3DAO):
         return row
 
     def persist(self, vo):
+        """Persist a new user record and policy assignments.
+
+        :param vo: Dictionary containing user details.
+        :type vo: dict
+        :return: Generated primary key ID.
+        :rtype: str
+        """
         policies = None
         if "policies" in vo:
             policies = vo.pop("policies")
 
         vo = self.from_dict(vo)
         if "_id" not in vo or not vo["_id"]:
-            from api.utils import gen_random_string
             vo["_id"] = gen_random_string(12)
 
         super().persist(vo)
@@ -59,6 +92,15 @@ class UserDao(SQLite3DAO):
         return vo["_id"]
 
     def update_by_id(self, pk, vo):
+        """Update an existing user record by ID.
+
+        :param pk: Primary key ID of the user.
+        :type pk: str
+        :param vo: Dictionary containing updated user fields.
+        :type vo: dict
+        :return: True if update succeeded.
+        :rtype: bool
+        """
         if "policies" in vo:
             ps = vo.pop("policies")
             up_model = UserPolicyDao(connection=self.conn)
@@ -71,17 +113,41 @@ class UserDao(SQLite3DAO):
         return super().update_by_id(pk, vo)
 
     def get_descr(self, id):
+        """Retrieve description details for a user.
+
+        :param id: Primary key ID of the user.
+        :type id: str
+        :return: User entity dictionary or None if not found.
+        :rtype: dict or None
+        """
         sql = f"SELECT _id, name FROM {self.table_name} WHERE _id = ? limit 1"
         rs = self._query(sql, (id,), fetch=True)
         return self.to_dict(rs[0]) if rs else None
 
     def find_by_username(self, username):
+        """Find a user record by username.
+
+        :param username: Username of the user.
+        :type username: str
+        :return: User entity dictionary or None if not found.
+        :rtype: dict or None
+        """
         sql = f"SELECT * FROM {self.table_name} WHERE username = ? limit 1"
         rs = self._query(sql, (username,), fetch=True)
         return self.to_dict(rs[0]) if rs else None
 
     def query_all(self, page=None, per_page=None):
+        """Query users with optional pagination.
+
+        :param page: Page number for pagination.
+        :type page: int or None
+        :param per_page: Number of items per page.
+        :type per_page: int or None
+        :return: Dictionary containing metadata and data records.
+        :rtype: dict
+        """
         from math import ceil
+
         pagination = None
         if page and per_page:
             pagination = {"page": page, "per_page": per_page}
@@ -93,18 +159,28 @@ class UserDao(SQLite3DAO):
         return result
 
 
-class UserPolicyDao(SQLite3DAO):
+class UserPolicyDao(DuckDAO):
+    """Data access object for user-to-policy mappings."""
+
     def __init__(self, connection=None, auto_commit=True):
+        """Initialize UserPolicyDao instance.
+
+        :param connection: Optional database connection instance.
+        :type connection: duckdb.DuckDBPyConnection or None
+        :param auto_commit: Whether to automatically commit operations.
+        :type auto_commit: bool
+        """
         super().__init__(
             db_path=config.DB_PATH,
             table_name="user_policies",
             conn=connection,
-            auto_commit=auto_commit
+            auto_commit=auto_commit,
         )
+        self.connect()
 
     def create_schema(self):
+        """Create the user_policies table schema if it does not exist."""
         self.connect()
-        # We define foreign keys targetting _id of users and policy
         self.ddl(
             f"""CREATE TABLE if not exists {self.table_name} (
                 user_id varchar(12),
@@ -116,11 +192,19 @@ class UserPolicyDao(SQLite3DAO):
         )
 
     def get_by_user_id(self, user_id):
+        """Retrieve all policies associated with a user ID.
+
+        :param user_id: User identifier.
+        :type user_id: str
+        :return: List of policy dictionaries.
+        :rtype: list[dict]
+        """
         sql = f"SELECT * FROM {self.table_name} WHERE user_id = ?"
         rows = self._query(sql, (user_id,), fetch=True)
         policies = []
         if rows:
-            from api.repository.policy_model import PolicyDao
+            from api.model.policy_model import PolicyDao
+
             p_model = PolicyDao(connection=self.conn)
             for r in rows:
                 p = p_model.get_by_id(r["policy_id"])
@@ -131,6 +215,11 @@ class UserPolicyDao(SQLite3DAO):
         return policies
 
     def delete_by_user(self, user_id):
+        """Delete all policy assignments for a user ID.
+
+        :param user_id: User identifier.
+        :type user_id: str
+        """
         sql = f"DELETE FROM {self.table_name} WHERE user_id = ?"
         self._query(sql, (user_id,))
         if self.auto_commit:

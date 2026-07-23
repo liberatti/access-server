@@ -1,61 +1,70 @@
+import argparse
 import os
 import sys
 import bcrypt
-from api.repository.policy_model import PolicyClientDao, PolicyDao
-from api.repository.user_model import (
-    UserPolicyDao,
-    UserDao
-)
-from api.repository.vpn_model import VPNSessionDao
-from api.repository.dmz_model import DMZServiceDao,PortMappingDao
+
+from nxcore.middleware.logging_manager import logger
+from api.model.dmz_model import DMZServiceDao, PortMappingDao
+from api.model.policy_model import PolicyClientDao, PolicyDao
+from api.model.user_model import UserDao, UserPolicyDao
+from api.model.vpn_model import VPNSessionDao
+
 import config
+
 
 def create_db():
     if not os.path.exists(config.DB_PATH):
-        os.mkdir(config.DB_PATH)
+        os.makedirs(config.DB_PATH, exist_ok=True)
     UserDao().create_schema()
     PolicyDao().create_schema()
+    DMZServiceDao().create_schema()
     PolicyClientDao().create_schema()
     UserPolicyDao().create_schema()
     PortMappingDao().create_schema()
     VPNSessionDao().create_schema()
-    DMZServiceDao().create_schema()
+    logger.info("Database schema created successfully.")
 
 
-def reset_admin(usr, pw):
+def reset_admin(usr: str, pw: str):
     dao = UserDao()
     try:
         user = dao.find_by_username(usr)
         if user is None:
-            print(f"User with username {usr} not found.")
+            logger.error(f"User with username '{usr}' not found.")
             return
 
         hashed_pw = bcrypt.hashpw(pw.encode("utf8"), bcrypt.gensalt())
-        dao.update_by_id(user["id"], {"role": "superuser","password": hashed_pw.decode("utf-8")})
+        dao.update_by_id(
+            user["id"], {"role": "superuser", "password": hashed_pw.decode("utf-8")}
+        )
         dao.commit()
-        print("Password successfully updated.")
+        logger.info(f"Password for user '{usr}' successfully updated.")
     except Exception as e:
-        print(f"An error occurred: {e}")
+        logger.error(f"An error occurred: {e}")
     finally:
         dao.close()
 
-def main():
-    if len(sys.argv) < 3:
-        print("Usage: python cli.py reset_admin <username> <new_password>")
-        sys.exit(1)
-
-    command = sys.argv[1]
-    if command == "reset_admin":
-        if len(sys.argv) != 4:
-            print("Usage: python cli.py reset_admin <username> <new_password>")
-            sys.exit(1)
-        
-        username = sys.argv[2]
-        new_password = sys.argv[3]
-        reset_admin(username, new_password)
-    else:
-        print(f"Unknown command: {command}")
-        sys.exit(1)
 
 if __name__ == "__main__":
-    main()
+    parser = argparse.ArgumentParser(description="Access Server Management CLI")
+    subparsers = parser.add_subparsers(dest="command", help="Available commands")
+
+    subparsers.add_parser("create_db", help="Initialize and create database schema")
+
+    reset_parser = subparsers.add_parser(
+        "reset_admin", help="Reset password for an admin user"
+    )
+    reset_parser.add_argument("username", type=str, help="Username of the admin user")
+    reset_parser.add_argument(
+        "new_password", type=str, help="New password for the admin user"
+    )
+
+    args = parser.parse_args()
+
+    if args.command == "create_db":
+        create_db()
+    elif args.command == "reset_admin":
+        reset_admin(args.username, args.new_password)
+    else:
+        parser.print_help()
+        sys.exit(1)

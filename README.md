@@ -33,11 +33,9 @@ docker run --privileged -p 1194:1194 -p 5000:5000 \
 
 After startup, it is possible to configure vpn service on http://localhost:5000
 
-![](docs/wizard.png)
-
 This may take a wile, all the pki wil be generated
 
-![](docs/start-page.png)
+![](_docs/start-page.png)
 
 
 ## License Terms

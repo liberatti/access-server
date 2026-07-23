@@ -7,22 +7,13 @@ from config import main_path
 routes = Blueprint("server", __name__)
 
 
-@routes.route("/status", methods=["GET"])
-def status() -> Response:
-    config_dict = dict({"status": "pending"})
-    if VPNTool.is_initialized():
-        with open(f"{main_path}/data/config.json", "r") as a:
-            config_dict = json.loads(a.read())
-            if VPNTool.is_active():
-                config_dict.update({"status": "online"})
-            else:
-                config_dict.update({"status": "loading"})
-
-    return response_data(config_dict)
-
-
 @routes.route("/activate", methods=["POST"])
 def activate() -> Response:
+    """Initialize server configuration and start VPN background thread.
+
+    :return: Response indicating server activation has started.
+    :rtype: flask.Response
+    """
     config_dict = request.json
     init_thread = threading.Thread(
         target=VPNTool.initialize,
@@ -35,11 +26,16 @@ def activate() -> Response:
 
 @routes.route("/activate", methods=["PUT"])
 def update() -> Response:
+    """Update server configuration and restart VPN service.
+
+    :return: Response confirming service restart.
+    :rtype: flask.Response
+    """
     data = request.json
-    with open(f"data/config.json", "r") as a:
+    with open("data/config.json", "r") as a:
         config_dict = json.loads(a.read())
     config_dict.update(data)
-    with open(f"data/config.json", "w") as f:
+    with open("data/config.json", "w") as f:
         f.write(json.dumps(config_dict))
 
     VPNTool.restart_service()

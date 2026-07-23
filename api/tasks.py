@@ -1,9 +1,9 @@
-import json
-import os
-import traceback
-from datetime import timedelta, datetime
+import bcrypt
+from datetime import timedelta
 
 from nxcore.middleware.logging_manager import logger
+from api.tools.vpn_tool import VPNTool
+from api.model.user_model import UserDao
 
 import config
 
@@ -20,19 +20,28 @@ def install_task():
     initializing feeds and other repositories.
     """
     from cli import create_db
+
     create_db()
 
-    from api.tools.vpn_tool import VPNTool
-    if not VPNTool.is_initialized():
-        default_config = {
-            "name": "vpnserver",
-            "admin_user": "admin",
-            "admin_pass": "admin",
-            "network": "10.8.0.0",
-            "netmask": "255.255.255.0",
-            "port": 1194,
-            "protocol": "udp"
-        }
+    default_config = {
+        "name": "vpnserver",
+        "network": "10.8.0.0",
+        "netmask": "255.255.255.0",
+        "port": 1194,
+        "protocol": "udp",
+    }
+    with UserDao() as user_model:
+        hashed = bcrypt.hashpw(config.ADMIN_PASS.encode("utf8"), bcrypt.gensalt())
+        pk = user_model.persist(
+            {
+                "name": "admin",
+                "username": "admin",
+                "password": hashed.decode("utf-8"),
+                "role": "superuser",
+            }
+        )
+        default_config.update({"admin_pk": pk})
+        logger.info(f"Admin user created with ID {pk}")
         VPNTool.initialize(default_config)
 
 

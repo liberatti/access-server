@@ -1,9 +1,9 @@
 import { Observable } from "rxjs";
 
 export interface APIOperations<T, ID> {
-    get(pagging?: PageMeta): Observable<Page>;
+    get(pagging?: PageMeta): Observable<Page<T>>;
     getById(id: ID): Observable<T>;
-    getByName(name: string, pagging?: PageMeta): Observable<Page>;
+    getByName(name: string, pagging?: PageMeta): Observable<Page<T>>;
     removeById(id: ID): Observable<T>;
     save(data: Partial<T>): Observable<T>;
     update(id: ID, data: T): Observable<T>;
@@ -30,9 +30,9 @@ export interface PageMeta {
     page: number;
 }
 
-export interface Page {
-    data: [],
-    metadata: PageMeta,
+export interface Page<T = any> {
+    data: T[];
+    metadata: PageMeta;
 }
 
 export class DefaultPageMeta implements PageMeta {

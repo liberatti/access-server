@@ -1,5 +1,5 @@
 import { CommonModule } from '@angular/common';
-import { Component } from '@angular/core';
+import { Component, OnInit } from '@angular/core';
 import { ReactiveFormsModule } from '@angular/forms';
 import { MatMomentDateModule } from '@angular/material-moment-adapter';
 import { MatAutocompleteModule } from '@angular/material/autocomplete';
@@ -27,7 +27,7 @@ import { MatTooltipModule } from '@angular/material/tooltip';
 import { RouterModule } from '@angular/router';
 import { TranslateModule } from '@ngx-translate/core';
 import { ConfirmDialogComponent } from 'web/app/components/confirm-dialog/confirm-dialog.component';
-import { User } from 'web/app/models/security';
+import { AccessPolicy } from 'web/app/models/security';
 import { DefaultPageMeta } from 'web/app/models/shared';
 import { NotificationService } from 'web/app/services/notification.service';
 import { PolicyService } from 'web/app/services/policy.service';
@@ -46,10 +46,10 @@ import { PolicyService } from 'web/app/services/policy.service';
   ],
   templateUrl: './policy-list.component.html'
 })
-export class PolicyListComponent {
-  displayedColumns: string[] = ['name', 'networks', 'total_targets', 'action'];
+export class PolicyListComponent implements OnInit {
+  policyDC: string[] = ['name', 'networks', 'total_targets', 'action'];
 
-  dataSource: MatTableDataSource<never>;
+  policyDS: MatTableDataSource<AccessPolicy>;
   policyPA = new DefaultPageMeta();
 
   constructor(
@@ -57,8 +57,7 @@ export class PolicyListComponent {
     private policyService: PolicyService,
     private confirmDialog: MatDialog
   ) {
-    this.dataSource = new MatTableDataSource<never>;
-
+    this.policyDS = new MatTableDataSource<AccessPolicy>();
   }
 
   ngOnInit(): void {
@@ -66,10 +65,13 @@ export class PolicyListComponent {
   }
 
   updateGridTable() {
-    this.policyService.get(this.policyPA).subscribe(data => {
-      if (data.metadata) {
-        this.dataSource = new MatTableDataSource(data.data);
-        this.policyPA.total_elements = data.metadata.total_elements;
+    this.policyService.get(this.policyPA).subscribe((res: any) => {
+      if (res.metadata) {
+        this.policyPA.total_elements = res.metadata.total_elements || 0;
+        this.policyDS.data = res.data;
+      } else {
+        this.policyDS.data = [];
+        this.policyPA.total_elements = 0;
       }
     });
   }
@@ -81,23 +83,19 @@ export class PolicyListComponent {
   }
 
   onSave() {
-    this.policyService.get(this.policyPA).subscribe(data => {
-      this.dataSource = new MatTableDataSource(data.data);
-      this.policyPA.total_elements = data.metadata.total_elements;
-    });
-    console.log("onSave");
+    this.updateGridTable();
   }
-  onRemove(dto: User) {
+
+  onRemove(dto: AccessPolicy) {
     const dialogRef = this.confirmDialog.open(ConfirmDialogComponent, {
       data: { title: "Confirm policy removal ", message: "Remove " + dto.name },
     });
 
     dialogRef.afterClosed().subscribe(result => {
-      // accepted
       if (result && dto.id) {
-        this.policyService.removeById(dto.id).subscribe(data => {
+        this.policyService.removeById(dto.id).subscribe(() => {
           this.updateGridTable();
-          this.notificationService.openSnackBar('User removed');
+          this.notificationService.openSnackBar('Policy removed');
         });
       }
     });

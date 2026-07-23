@@ -12,6 +12,7 @@ import { LocalStorageService } from 'web/app/services/localstorage.service';
 import { AuthService, ServerService } from 'web/app/services/security.service';
 import { MatDialog } from '@angular/material/dialog';
 import { AboutDialogComponent } from 'web/app/components/about-dialog/about-dialog.component';
+import { environment } from 'web/environments/environment';
 
 @Component({
   selector: 'app-admin-layout',
@@ -28,6 +29,7 @@ import { AboutDialogComponent } from 'web/app/components/about-dialog/about-dial
 })
 export class AdminLayoutComponent implements OnInit, AfterViewInit {
   title: string = "Access Server";
+  version: string = environment.version;
   user: User = <User>{};
   loading: boolean = false;
   config: FrontendConfig = <FrontendConfig>{ locale: { key: 'en_US' }, navGroup: "dashboard" };
@@ -39,7 +41,7 @@ export class AdminLayoutComponent implements OnInit, AfterViewInit {
     private translate: TranslateService,
     private serverService: ServerService,
     private router: Router,
-    private portDialog: MatDialog
+    private dialog: MatDialog
   ) {
     this.config = this.localStorage.get('x-config');
   }
@@ -60,16 +62,10 @@ export class AdminLayoutComponent implements OnInit, AfterViewInit {
     } else {
       this.user = this.localStorage.get('x-user');
     }
-
-    this.serverService.getStatus().subscribe(data => {
-      if (data.status != 'online') {
-        this.router.navigate(['/wizard']);
-      }
-    });
   }
 
   showAbout() {
-    this.portDialog.open(AboutDialogComponent, {
+    this.dialog.open(AboutDialogComponent, {
       width: '450px'
     });
   }

@@ -1,19 +1,6 @@
 import os
-import logging
-import inspect
-import random
-import string
-from functools import wraps
 import sys
 import threading
-from flask import jsonify
-from config import SECURITY_ENABLED
-from nxcore.middleware.jwt_manager import JWTManager
-
-
-def gen_random_string(length):
-    letters = string.ascii_lowercase
-    return "".join(random.choice(letters) for i in range(length))
 
 
 def handle_sigterm(signum, frame):
@@ -31,61 +18,3 @@ def chmod_r(path, mode, recursive=False):
             for filename in files:
                 os.chmod(os.path.join(root, filename), mode)
     os.chmod(path, mode)
-
-
-def has_any_authority(_authorities):
-    def wrapper(fn):
-        @wraps(fn)
-        def decorator(*args, **kwargs):
-            if not SECURITY_ENABLED:
-                return fn(*args, **kwargs)
-            try:
-                jwt_mgr = JWTManager.get_current_instance()
-                token = jwt_mgr.get_token_from_request()
-                if not token:
-                    raise Exception("Missing authorization token")
-                claims = jwt_mgr.decode(token)
-            except Exception:
-                return (
-                    jsonify({"message": "Invalid authorization", "code": 401}),
-                    401,
-                )
-            if any(a in claims.get("authorities", []) for a in _authorities):
-                return fn(*args, **kwargs)
-            return jsonify(msg="Admin privileges required"), 403
-
-        return decorator
-
-    return wrapper
-
-
-class CustomLogger(logging.Logger):
-    def info(self, msg, *args, **kwargs):
-        frame = inspect.currentframe().f_back
-        caller_method = frame.f_code.co_name
-        filename = os.path.basename(frame.f_globals.get("__file__", ""))
-        lineno = frame.f_lineno
-        super().info(f"[{filename}][{caller_method}][{lineno}] {msg}", *args, **kwargs)
-
-    def error(self, msg, *args, **kwargs):
-        frame = inspect.currentframe().f_back
-        caller_method = frame.f_code.co_name
-        filename = os.path.basename(frame.f_globals.get("__file__", ""))
-        lineno = frame.f_lineno
-        super().error(f"[{filename}][{caller_method}][{lineno}] {msg}", *args, **kwargs)
-
-    def warn(self, msg, *args, **kwargs):
-        frame = inspect.currentframe().f_back
-        caller_method = frame.f_code.co_name
-        filename = os.path.basename(frame.f_globals.get("__file__", ""))
-        lineno = frame.f_lineno
-        super().warn(f"[{filename}][{caller_method}][{lineno}] {msg}", *args, **kwargs)
-
-
-logger = CustomLogger(__name__)
-logger.setLevel(logging.INFO)
-console_handler = logging.StreamHandler()
-console_handler.setLevel(logging.DEBUG)
-formatter = logging.Formatter("%(asctime)s - :name - %(levelname)s - %(message)s")
-console_handler.setFormatter(formatter)
-logger.addHandler(console_handler)

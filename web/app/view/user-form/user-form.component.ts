@@ -68,8 +68,8 @@ export class UserFormComponent implements OnInit {
   ngOnInit(): void {
     this.isAddMode = !this.route.snapshot.params['id'];
 
-    this.policyService.get().subscribe(data => {
-      this._policies = data.data;
+    this.policyService.get().subscribe((data: any) => {
+      this._policies = data?.data || (Array.isArray(data) ? data : []);
     });
 
     if (!this.isAddMode) {
