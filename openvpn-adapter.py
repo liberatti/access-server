@@ -2,9 +2,11 @@
 import os
 import sys
 import bcrypt
-from api.utils import logger
 from api.model.user_model import UserDao
 from api.model.vpn_model import VPNSessionDao
+from nxcore.middleware.logging_manager import LoggingManager
+
+logger = LoggingManager(loglevel="DEBUG").get_current_instance()
 
 
 def print_env():
@@ -13,36 +15,37 @@ def print_env():
 
 
 def auth_user(username, password):
-    model = UserDao()
-    user = model.find_by_username(username)
-    if bcrypt.checkpw(password, user["password"].encode("utf8")):
-        logger.info("auth success! ")
-        return True
+    with UserDao() as model:
+        user = model.find_by_username(username)
+        if (
+            user
+            and user.get("password")
+            and bcrypt.checkpw(password, user["password"].encode("utf8"))
+        ):
+            logger.info(f"auth success for user {username}")
+            return True
+    logger.warning(f"auth failed for user {username}")
     return False
 
 
 def connect(user_id, remote_port, remote_ip, local_ip):
-    model = VPNSessionDao()
-    session = {
-        "user_id": user_id,
-        "remote_port": remote_port,
-        "remote_ip": remote_ip,
-        "local_ip": local_ip,
-        "state": "pending",
-    }
-    model.persist(session)
-    model.commit()
-    model.close()
+    with VPNSessionDao() as model:
+        session = {
+            "user_id": user_id,
+            "remote_port": remote_port,
+            "remote_ip": remote_ip,
+            "local_ip": local_ip,
+            "state": "pending",
+        }
+        model.persist(session)
     sys.exit(0)
 
 
 def disconnect(user_id):
-    model = VPNSessionDao()
-    sessions = model.get_all_by_user_id(user_id)
-    for s in sessions:
-        model.update_by_id(s["id"], {"state": "disconnect"})
-    model.commit()
-    model.close()
+    with VPNSessionDao() as model:
+        sessions = model.get_all_by_user_id(user_id)
+        for s in sessions:
+            model.update_by_id(s["id"], {"state": "disconnect"})
     sys.exit(0)
 
 
