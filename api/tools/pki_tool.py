@@ -64,3 +64,17 @@ class PKITool:
         ]
         for cmd in cmds:
             subprocess.run(cmd, shell=True)
+
+    @classmethod
+    def update_server_pki(cls, server_name):
+        subprocess.run(
+            [
+                f"{cls.pki_bin}/easyrsa",
+                "--batch",
+                f"--pki={cls.pki_dir}",
+                "--days=3650",
+                "build-server-full",
+                server_name,
+                "nopass",
+            ]
+        )

@@ -1,5 +1,5 @@
 port {{ port }}
-proto tcp
+proto tcp-server
 dev tun
 ca {{ pki_dir }}/ca.crt
 cert {{ pki_dir }}/issued/{{ name }}.crt
@@ -9,16 +9,16 @@ auth SHA512
 tls-crypt {{ pki_dir }}/tc.key
 topology subnet
 server {{ subnet }}
-user nobody
-group nobody
 persist-key
 persist-tun
 verb 3
 keepalive 10 60
 script-security 2
-auth-user-pass-verify openvpn-adapter.py via-file
-client-connect openvpn-adapter.py
-client-disconnect openvpn-adapter.py
+cipher AES-256-GCM
+data-ciphers AES-256-GCM:AES-128-GCM:CHACHA20-POLY1305
+auth-user-pass-verify "/usr/bin/python3.12 /opt/access-server/openvpn-adapter.py" via-file
+client-connect "/usr/bin/python3.12 /opt/access-server/openvpn-adapter.py"
+client-disconnect "/usr/bin/python3.12 /opt/access-server/openvpn-adapter.py"
 crl-verify {{ pki_dir }}/crl.pem
 management 127.0.0.1 23000
 {% for r in routes %}
