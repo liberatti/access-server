@@ -23,19 +23,36 @@ sysctl -p
 ## Executing container
 Container VPN service will need to know its publication IP and port to pre-build client configuration:
 ```
-docker volume create vpn_config
+docker volume create access-server_config
 docker run --privileged -p 1194:1194 -p 5000:5000 \
-    -v vpn_config:/opt/access-server/data \
-    --name liberatti-as \
+    -v access-server_config:/opt/access-server/data \
+    --name access-server \
     liberatti/access-server:latest
 ```
-## Configuration
 
 After startup, it is possible to configure vpn service on http://localhost:5000
 
 This may take a wile, all the pki wil be generated
 
-![](_docs/start-page.png)
+
+### Default screenshots of configuration pages
+
+- **Users:** Gerenciamento de contas de usuários e credenciais de acesso.
+  ![Users](.docs/01-users.png)
+
+- **Policy:** Definição de regras de acesso e políticas de tráfego.
+  ![Policy](.docs/02-policy.png)
+
+- **Services:** Cadastro de serviços e destinos disponíveis na rede.
+  ![Services](.docs/03-services.png)
+
+- **Configuration:** Configurações globais do servidor VPN e parâmetros de rede.
+  ![Configuration](.docs/04-config.png)
+
+
+## Agent Configurations
+
+This repository contains localized rules and skills for agentic AI workflows. For more details, see the [.agents/README.md](file:///home/liberatti/workspace/github.com/liberatti/access-server/.agents/README.md).
 
 
 ## License Terms
