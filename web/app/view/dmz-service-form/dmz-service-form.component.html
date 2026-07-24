@@ -1,0 +1,63 @@
+<ng-container>
+    <mat-card>
+        <mat-card-header>
+            @if (isAddMode){
+            <mat-card-title>
+                {{ 'actions.create' | translate }}
+            </mat-card-title>
+            }@else{
+            <mat-card-title>
+                {{ 'actions.edit' | translate }}
+            </mat-card-title>
+            }
+        </mat-card-header>
+        <mat-card-content>
+            <form [formGroup]="form">
+                <div class="mat-row">
+                    <div class="mat-col-6">
+                        <mat-form-field class="full-width">
+                            <mat-label>Name</mat-label>
+                            <input id="user.name" matInput formControlName="name">
+                        </mat-form-field>
+                        <mat-form-field class="example-full-width">
+                            <mat-label>Description</mat-label>
+                            <textarea matInput></textarea>
+                        </mat-form-field>
+                    </div>
+
+                    <div class="mat-col-6">
+                        <mat-card>
+                            <mat-card-header>
+                                <mat-card-title>
+                                    Port Mapping
+                                </mat-card-title>
+                                <mat-card-actions>
+                                    <button type="button" mat-button (click)="onAddPort()">ADD</button>
+                                  </mat-card-actions>
+                            </mat-card-header>
+
+                            <mat-card-content>
+                                <mat-chip-listbox>
+                                    <mat-chip-row *ngFor="let p of form.value.port_mappings" (removed)="onRemovePort(p.id)">
+                                        {{p.bind_port}}->({{p.user.name || p.user.username || 'User'}}:{{p.user_port}})
+                                        <button type="button" matChipRemove>
+                                            <mat-icon>cancel</mat-icon>
+                                        </button>
+                                    </mat-chip-row>
+                                </mat-chip-listbox>
+                            </mat-card-content>
+                        </mat-card>
+                    </div>
+                </div>
+            </form>
+        </mat-card-content>
+        <mat-card-actions align="end">
+            <button type="button" mat-button [routerLink]="['/dmz']">
+                {{ 'actions.cancel' | translate }}
+            </button>
+            <button id="save-btn" type="button" (click)="onSubmit()" mat-raised-button color="primary">
+                <mat-icon>save</mat-icon> {{ 'actions.save' | translate }}
+            </button>
+        </mat-card-actions>
+    </mat-card>
+</ng-container>

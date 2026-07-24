@@ -1,0 +1,59 @@
+<div class="vcenter-login-container">
+  <!-- Left Side: Login Form Panel (vCenter Style) -->
+  <div class="vcenter-login-panel">
+    <div class="vcenter-login-content">
+      <!-- Login Form -->
+      <form [formGroup]="form" (ngSubmit)="login()" id="login-form" class="vcenter-form">
+        <h2 class="vcenter-form-title">Sign-On</h2>
+
+        <mat-form-field appearance="outline" class="vcenter-field">
+          <mat-label>User name</mat-label>
+          <input id="username" matInput placeholder="Enter username" formControlName="username" autocomplete="username"
+            type="text">
+          <mat-icon matSuffix>person</mat-icon>
+        </mat-form-field>
+
+        <mat-form-field appearance="outline" class="vcenter-field">
+          <mat-label>Password</mat-label>
+          <input id="password" matInput placeholder="Enter password" formControlName="password" type="password"
+            autocomplete="current-password">
+          <mat-icon matSuffix>lock</mat-icon>
+        </mat-form-field>
+
+        <mat-form-field appearance="outline" class="vcenter-field">
+          <mat-label>Language</mat-label>
+          <mat-select formControlName="locale">
+            @for (l of locales; track l) {
+            <mat-option [value]="l.id">
+              {{l.name}}
+            </mat-option>
+            }
+          </mat-select>
+          <mat-icon matSuffix>language</mat-icon>
+        </mat-form-field>
+
+        <div class="vcenter-actions">
+          <button mat-raised-button id="login" type="submit" color="primary" class="vcenter-btn-submit">
+            LOGIN
+          </button>
+        </div>
+      </form>
+    </div>
+
+    <!-- Panel Footer -->
+    <div class="vcenter-footer">
+      <span>Access Server Management &copy; 2026</span>
+    </div>
+  </div>
+
+  <!-- Right Side: Ambient Brand Backdrop -->
+  <div class="vcenter-backdrop-panel">
+    <div class="vcenter-backdrop-overlay">
+      <div class="vcenter-hero-badge">
+        <img src="assets/icon.png" alt="Monogram Emblem" class="vcenter-hero-icon">
+        <h2 class="vcenter-hero-title">Secure Network Gateway</h2>
+        <p class="vcenter-hero-desc">Zero Trust Access & Encrypted Multi-Client Tunneling</p>
+      </div>
+    </div>
+  </div>
+</div>

@@ -1,0 +1,14 @@
+services:
+  as:
+    build: 
+      context: .
+    image: liberatti/access-server:latest
+    privileged: true
+    volumes:
+      - vpn-data:/opt/access-server/data
+    ports:
+      - "5000:5000"
+      - "1194:1194"
+volumes:
+  vpn-data:
+    driver: local

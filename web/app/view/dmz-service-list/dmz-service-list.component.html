@@ -1,0 +1,78 @@
+<ng-container>
+    <mat-card>
+        <mat-card-header>
+            <mat-card-title>
+                {{ 'titles.dmzServices' | translate }}
+            </mat-card-title>
+            <mat-card-actions>
+                <button id="add-btn" mat-button color="primary" [routerLink]="['add']">
+                    <mat-icon>add</mat-icon> {{'actions.create'|translate}}
+                </button>
+            </mat-card-actions>
+        </mat-card-header>
+        <mat-card-content>
+            <table mat-table [dataSource]="dmzDS">
+                <tr mat-header-row *matHeaderRowDef="dmzDC"></tr>
+                <tr mat-row *matRowDef="let row; columns: dmzDC;"></tr>
+
+                <ng-container matColumnDef="name">
+                    <th mat-header-cell *matHeaderCellDef> {{ 'attr.name' | translate }} </th>
+                    <td mat-cell *matCellDef="let element" class="full-width">
+                        {{element.name}}
+                    </td>
+                </ng-container>
+
+                <ng-container matColumnDef="port_mappings">
+                    <th mat-header-cell *matHeaderCellDef class="no-wrap"> {{ 'attr.portMappings' | translate }} </th>
+                    <td mat-cell *matCellDef="let element">
+                        <mat-chip-set>
+                            @for (n of element.port_mappings; track n) {
+                            <mat-chip>{{n.bind_port}}->{{n.user_port}}</mat-chip>
+                            }
+                        </mat-chip-set>
+                    </td>
+                </ng-container>
+                <ng-container matColumnDef="sessions">
+                    <th mat-header-cell *matHeaderCellDef> {{ 'attr.activeSession' | translate }} </th>
+                    <td mat-cell *matCellDef="let element">
+                        <mat-chip-set>
+                            @for (n of element.sessions; track n) {
+                            <mat-chip>{{n.remote_ip}}->{{n.local_ip}}</mat-chip>
+                            }
+                        </mat-chip-set>
+                    </td>
+                </ng-container>
+                <ng-container matColumnDef="role">
+                    <th mat-header-cell *matHeaderCellDef> {{ 'attr.role' | translate }} </th>
+                    <td mat-cell *matCellDef="let element"> {{element.role}} </td>
+                </ng-container>
+                
+                <ng-container matColumnDef="action">
+                    <th mat-header-cell *matHeaderCellDef class="mat-column-action"> {{ 'attr.action' | translate }} </th>
+                    <td mat-cell *matCellDef="let element;let i = index;" class="mat-column-action">
+                        <div class="button-group">
+                            <button mat-button [matMenuTriggerFor]="menu">
+                                <mat-icon>more_vert</mat-icon>
+                            </button>
+                            <mat-menu #menu="matMenu" xPosition="before">
+                                <button mat-menu-item [routerLink]="['edit',element.id]">
+                                    <mat-icon>edit</mat-icon> {{ 'actions.edit' | translate }}
+                                </button>
+                                <button mat-menu-item (click)="onRemove(element)">
+                                    <mat-icon>delete</mat-icon> {{ 'actions.delete' | translate }}
+                                </button>
+                            </mat-menu>
+                        </div>
+                    </td>
+                </ng-container>
+            </table>
+            <mat-paginator [pageSizeOptions]="[5, 10, 20]"
+                [length]="dmzPA.total_elements"
+                [pageSize]="dmzPA.per_page"
+                [pageIndex]="dmzPA.page - 1"
+                (page)="nextPage($event)"
+                showFirstLastButtons>
+            </mat-paginator>
+        </mat-card-content>
+    </mat-card>
+</ng-container>

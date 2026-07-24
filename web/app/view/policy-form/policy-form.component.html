@@ -1,0 +1,82 @@
+<ng-container>
+    <mat-card>
+        <mat-card-header>
+            @if (isAddMode){
+            <mat-card-title>
+                {{ 'titles.policyForm' | translate }} - {{ 'actions.create' | translate }}
+            </mat-card-title>
+            }@else{
+            <mat-card-title>
+                {{ 'titles.policyForm' | translate }} - {{ 'actions.edit' | translate }}
+            </mat-card-title>
+            }
+        </mat-card-header>
+        <mat-card-content>
+            <div class="row">
+                <div class="col">
+                    <form [formGroup]="form">
+                        <mat-form-field class="full-width" appearance="outline">
+                            <mat-label>{{ 'attr.name' | translate }}</mat-label>
+                            <input id="policy.name" matInput formControlName="name" [placeholder]="'hints.name' | translate">
+                        </mat-form-field>
+                        
+                        <div [formGroup]="clientForm">
+                            <mat-card>
+                                <mat-form-field class="full-width" appearance="outline">
+                                    <mat-label>{{ 'attr.permitClient' | translate }}</mat-label>
+                                    <mat-select formControlName="client" [compareWith]="compareFn" (selectionChange)="onAddClient()">
+                                        <mat-option *ngFor="let c of __clients;" [value]="c">
+                                            {{c.name}}
+                                        </mat-option>
+                                    </mat-select>
+                                </mat-form-field>
+                                <mat-card-content>
+                                    <mat-chip-listbox>
+                                        <mat-chip-row *ngFor="let p of form.value.clients"
+                                            (removed)="onRemoveClient(p.id)">
+                                            {{p.name}}
+                                            <button type="button" matChipRemove>
+                                                <mat-icon>cancel</mat-icon>
+                                            </button>
+                                        </mat-chip-row>
+                                    </mat-chip-listbox>
+                                </mat-card-content>
+                            </mat-card>
+                        </div>
+
+                        <div [formGroup]="networkForm" class="mt-2">
+                            <mat-card>
+                                <mat-form-field class="full-width" appearance="outline">
+                                    <mat-label>{{ 'attr.permitNetwork' | translate }}</mat-label>
+                                    <input matInput formControlName="addr" [placeholder]="'hints.networkIp' | translate">
+                                    <button type="button" color="primary" matSuffix mat-icon-button (click)="onAddNetwork()">
+                                        <mat-icon>add</mat-icon>
+                                    </button>
+                                </mat-form-field>
+                                <mat-card-content>
+                                    <mat-chip-listbox>
+                                        <mat-chip-row *ngFor="let p of form.value.networks"
+                                            (removed)="onRemoveNetwork(p)">
+                                            {{p}}
+                                            <button type="button" matChipRemove>
+                                                <mat-icon>cancel</mat-icon>
+                                            </button>
+                                        </mat-chip-row>
+                                    </mat-chip-listbox>
+                                </mat-card-content>
+                            </mat-card>
+                        </div>
+                    </form>
+                </div>
+            </div>
+        </mat-card-content>
+        <mat-card-actions align="end">
+            <button type="button" mat-button [routerLink]="['/policy']">
+                {{ 'actions.cancel' | translate }}
+            </button>
+            <button id="save-btn" type="button" (click)="onSubmit()" mat-raised-button color="primary">
+                <mat-icon>save</mat-icon> {{ 'actions.save' | translate }}
+            </button>
+        </mat-card-actions>
+    </mat-card>
+</ng-container>

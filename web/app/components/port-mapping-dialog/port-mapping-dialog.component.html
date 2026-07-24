@@ -1,0 +1,45 @@
+<h2 mat-dialog-title>Add Port Mapping</h2>
+
+<mat-dialog-content>
+  <form [formGroup]="form" style="display: flex; flex-direction: column; gap: 16px; padding-top: 8px;">
+
+    <div style="display: flex; gap: 16px;">
+      <mat-form-field appearance="outline" style="flex: 2;">
+        <mat-label>Protocol</mat-label>
+        <mat-select formControlName="protocol">
+          <mat-option *ngFor="let ut of _supportedProtocols" [value]="ut">
+            {{ut}}
+          </mat-option>
+        </mat-select>
+      </mat-form-field>
+
+      <mat-form-field appearance="outline" style="flex: 1;">
+        <mat-label>Server Port</mat-label>
+        <input id="user.bind_port" matInput formControlName="bind_port" type="number">
+      </mat-form-field>
+    </div>
+
+    <div style="display: flex; gap: 16px;">
+      <mat-form-field appearance="outline" style="flex: 2;">
+        <mat-label>Client</mat-label>
+        <mat-select formControlName="user">
+          <mat-option *ngFor="let ut of _users" [value]="ut">
+            {{ut.name || ut.username}}
+          </mat-option>
+        </mat-select>
+      </mat-form-field>
+
+      <mat-form-field appearance="outline" style="flex: 1;">
+        <mat-label>Port</mat-label>
+        <input id="user.user_port" matInput formControlName="user_port" type="number">
+      </mat-form-field>
+    </div>
+
+  </form>
+</mat-dialog-content>
+
+<mat-dialog-actions align="end">
+  <button type="button" mat-button (click)="onDismiss()"> {{ 'actions.cancel' | translate }}</button>
+  <button type="button" mat-raised-button color="primary" (click)="onConfirm()" cdkFocusInitial>
+    <mat-icon>save</mat-icon> {{ 'actions.save' | translate }}</button>
+</mat-dialog-actions>

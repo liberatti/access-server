@@ -1,0 +1,8 @@
+iptables -F p_{{ policy_id }}
+{% for addr in networks %}
+iptables -A p_{{ policy_id }} -d {{ addr }} -m state --state NEW,ESTABLISHED,RELATED -j ACCEPT
+{% endfor %}
+{% for c in clients %}
+iptables -A p_{{ policy_id }} -m set --match-set {{ c.id }}_set dst -m state --state NEW,ESTABLISHED,RELATED -j ACCEPT
+{% endfor %}
+iptables -A p_{{ policy_id }} -j RETURN

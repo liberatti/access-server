@@ -1,0 +1,96 @@
+{
+  "aboutMessage": "Obrigado",
+  "titles": {
+    "users": "Usuários",
+    "policies": "Políticas de Acesso",
+    "dmzServices": "Serviços DMZ",
+    "serverStatus": "Status do Servidor",
+    "serverSettings": "Configuração do Servidor",
+    "portMapping": "Mapeamento de Portas",
+    "userForm": "Formulário de Usuário",
+    "policyForm": "Formulário de Política",
+    "dmzForm": "Formulário de Serviço DMZ",
+    "singleSignOn": "Autenticação Única"
+  },
+  "actions": {
+    "create": "Adicionar",
+    "edit": "Editar",
+    "delete": "Excluir",
+    "remove": "Remover",
+    "search": "Buscar",
+    "filter": "Filtrar",
+    "export": "Exportar",
+    "save": "Salvar",
+    "cancel": "Cancelar",
+    "download": "Baixar",
+    "computer": "Perfil Computador",
+    "mobile": "Perfil Dispositivo Móvel",
+    "add": "Adicionar",
+    "no": "Não",
+    "ok": "Ok",
+    "login": "ENTRAR",
+    "logout": "Sair",
+    "about": "Sobre"
+  },
+  "attr": {
+    "name": "Nome",
+    "serverName": "Nome do Servidor",
+    "vpnNetwork": "Rede VPN",
+    "netmask": "Máscara de Rede",
+    "pushedRoutes": "Rotas Publicadas",
+    "username": "Nome de Usuário",
+    "role": "Perfil / Função",
+    "activeSession": "Sessão Ativa",
+    "networks": "Redes",
+    "totalClients": "Total de Clientes",
+    "portMappings": "Mapeamentos de Porta",
+    "description": "Descrição",
+    "protocol": "Protocolo",
+    "serverPort": "Porta do Servidor",
+    "clientPort": "Porta do Cliente",
+    "port": "Porta",
+    "client": "Cliente",
+    "policy": "Política",
+    "permitClient": "Permitir Acesso ao Cliente",
+    "permitNetwork": "Permitir Acesso à Rede",
+    "action": "Ações",
+    "download": "Baixar Config",
+    "password": "Senha",
+    "language": "Idioma",
+    "domains": "Domínios",
+    "routes": "Rotas",
+    "active": "Ativo"
+  },
+  "hints": {
+    "networkIp": "ex. 192.168.1.0/24",
+    "username": "Digite o nome de usuário",
+    "password": "Digite a senha",
+    "name": "Digite o nome",
+    "serverName": "ex. AccessServer-VPN",
+    "vpnNetwork": "ex. 10.8.0.0",
+    "netmask": "ex. 255.255.255.0",
+    "description": "Digite a descrição do serviço",
+    "selectClient": "Selecione um cliente",
+    "selectPolicy": "Selecione a política de acesso"
+  },
+  "nav": {
+    "users": "Usuários",
+    "policies": "Políticas",
+    "dmzServices": "Serviços DMZ",
+    "settings": "Configurações",
+    "system": "Sistema",
+    "about": "Sobre"
+  },
+  "format": {
+    "parse": {
+      "dateInput": "YYYY-MM-DDTHH:mm:ss.SSSZ"
+    },
+    "display": {
+      "time": "HH:mm:ss",
+      "datetime": "DD/MM/YYYY HH:mm:ss",
+      "monthYearLabel": "MMM YYYY",
+      "dateA11yLabel": "LL",
+      "monthYearA11yLabel": "MMMM YYYY"
+    }
+  }
+}
