@@ -1,11 +1,10 @@
 port {{ port }}
-proto tcp-server
+proto {{ protocol }}
 dev tun
 ca {{ pki_dir }}/ca.crt
 cert {{ pki_dir }}/issued/{{ name }}.crt
 key {{ pki_dir }}/private/{{ name }}.key
 dh {{ pki_dir }}/dh.pem
-auth SHA512
 tls-crypt {{ pki_dir }}/tc.key
 topology subnet
 server {{ subnet }}
@@ -14,8 +13,9 @@ persist-tun
 verb 3
 keepalive 10 60
 script-security 2
-cipher AES-256-GCM
-data-ciphers AES-256-GCM:AES-128-GCM:CHACHA20-POLY1305
+auth {{ auth }}
+cipher {{ cipher }}
+data-ciphers {{ data_ciphers }}
 auth-user-pass-verify "/usr/bin/python3.12 /opt/access-server/openvpn-adapter.py" via-file
 client-connect "/usr/bin/python3.12 /opt/access-server/openvpn-adapter.py"
 client-disconnect "/usr/bin/python3.12 /opt/access-server/openvpn-adapter.py"

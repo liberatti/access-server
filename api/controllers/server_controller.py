@@ -2,6 +2,7 @@ import threading
 from flask import Blueprint, json, request, Response
 from api.tools.vpn_tool import VPNTool
 from api.tools.pki_tool import PKITool
+from api.model.server_config_model import ServerConfigDao
 from nxcore.controllers.base_controller import response_data, response_ok
 
 routes = Blueprint("server", __name__)
@@ -15,11 +16,14 @@ def update() -> Response:
     :rtype: flask.Response
     """
     data = request.json
-    with open("data/config.json", "r") as a:
-        config_dict = json.loads(a.read())
-    config_dict.update(data)
-    with open("data/config.json", "w") as f:
-        f.write(json.dumps(config_dict))
+    with ServerConfigDao() as dao:
+        config_dict = dao.get_config()
+        if config_dict:
+            pk = config_dict["id"]
+            config_dict.update(data)
+            dao.update_by_id(pk, config_dict)
+        else:
+            dao.persist(data)
     PKITool.update_server_pki(data["name"])
     VPNTool.restart_service()
     return response_ok("Active")
@@ -33,8 +37,8 @@ def get_config() -> Response:
     :rtype: flask.Response
     """
     try:
-        with open("data/config.json", "r") as f:
-            config_dict = json.loads(f.read())
+        with ServerConfigDao() as dao:
+            config_dict = dao.get_config() or {}
         return response_data(config_dict)
     except Exception:
         return response_data({})

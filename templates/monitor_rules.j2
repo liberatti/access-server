@@ -1,0 +1,10 @@
+iptables -D FORWARD -s {{ local_ip }} -m comment --comment 'traffic_out_{{ local_ip }}' 2>/dev/null || true
+iptables -D FORWARD -d {{ local_ip }} -m comment --comment 'traffic_in_{{ local_ip }}' 2>/dev/null || true
+iptables -D INPUT -s {{ local_ip }} -m comment --comment 'traffic_out_{{ local_ip }}' 2>/dev/null || true
+iptables -D OUTPUT -d {{ local_ip }} -m comment --comment 'traffic_in_{{ local_ip }}' 2>/dev/null || true
+{% if action == 'insert' %}
+iptables -I FORWARD -s {{ local_ip }} -m comment --comment 'traffic_out_{{ local_ip }}'
+iptables -I FORWARD -d {{ local_ip }} -m comment --comment 'traffic_in_{{ local_ip }}'
+iptables -I INPUT -s {{ local_ip }} -m comment --comment 'traffic_out_{{ local_ip }}'
+iptables -I OUTPUT -d {{ local_ip }} -m comment --comment 'traffic_in_{{ local_ip }}'
+{% endif %}

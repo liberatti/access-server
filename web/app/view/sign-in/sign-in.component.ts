@@ -11,6 +11,7 @@ import { MatProgressBarModule } from '@angular/material/progress-bar';
 import { MatSelectModule } from '@angular/material/select';
 import { MatTooltipModule } from '@angular/material/tooltip';
 import { Router, RouterModule } from '@angular/router';
+import { TranslateModule } from '@ngx-translate/core';
 import { User } from 'web/app/models/security';
 import { Language, FrontendConfig } from 'web/app/models/shared';
 import { LocalStorageService } from 'web/app/services/localstorage.service';
@@ -22,7 +23,8 @@ import { AuthService } from 'web/app/services/security.service';
   imports: [RouterModule, FormsModule, ReactiveFormsModule,
     MatIconModule, MatButtonModule, MatFormFieldModule,
     MatCardModule, MatProgressBarModule, MatInputModule,
-    MatTooltipModule, MatSelectModule, MatOptionModule
+    MatTooltipModule, MatSelectModule, MatOptionModule,
+    TranslateModule
   ],
 
   templateUrl: './sign-in.component.html',
@@ -30,6 +32,7 @@ import { AuthService } from 'web/app/services/security.service';
 })
 export class SiginComponent {
   locales = [] as Array<Language>;
+  errorMessage: string = '';
 
   form = new FormGroup({
     username: new FormControl<string>('', {
@@ -63,18 +66,28 @@ export class SiginComponent {
       return;
     }
 
+    this.errorMessage = '';
     const formData = this.form.value as User;
-    this.auth.login(formData).subscribe(data => {
-      this.localStorage.set('x-auth', data);
-      this.http.get('./assets/i18n/' + formData.locale + '.json').subscribe((data: any) => {
-        let lc = {
-          key: formData.locale,
-          display: data.format.display,
-          parse: data.format.parse
+    this.auth.login(formData).subscribe({
+      next: (data) => {
+        this.localStorage.set('x-auth', data);
+        this.http.get('./assets/i18n/' + formData.locale + '.json').subscribe((data: any) => {
+          let lc = {
+            key: formData.locale,
+            display: data.format.display,
+            parse: data.format.parse
+          }
+          this.localStorage.set('x-config', <FrontendConfig>{ locale: lc, navGroup: "dashboard", navResource: "system" });
+          this.router.navigate(['/user']);
+        });
+      },
+      error: (err) => {
+        if (err.status === 401 || err.status === 403) {
+          this.errorMessage = 'hints.loginFailed';
+        } else {
+          this.errorMessage = 'hints.connectionError';
         }
-        this.localStorage.set('x-config', <FrontendConfig>{ locale: lc, navGroup: "dashboard", navResource: "system" });
-        this.router.navigate(['/user']);
-      });
+      }
     });
   }
 

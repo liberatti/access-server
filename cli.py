@@ -8,6 +8,7 @@ from api.model.dmz_model import DMZServiceDao, PortMappingDao
 from api.model.policy_model import PolicyClientDao, PolicyDao
 from api.model.user_model import UserDao, UserPolicyDao
 from api.model.vpn_model import VPNSessionDao
+from api.model.server_config_model import ServerConfigDao
 
 import config
 
@@ -22,6 +23,7 @@ def create_db():
     UserPolicyDao().create_schema()
     PortMappingDao().create_schema()
     VPNSessionDao().create_schema()
+    ServerConfigDao().create_schema()
     logger.info("Database schema created successfully.")
 
 

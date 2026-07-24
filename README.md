@@ -2,6 +2,12 @@
 
 It's a full network tunneling VPN software solution that integrates OpenVPN server capabilities and enterprise management capabilities.
 
+
+[![Docker Image](https://img.shields.io/badge/docker-ready-blue?logo=docker&logoColor=white)](https://hub.docker.com/r/liberatti/access-server)
+[![License](https://img.shields.io/badge/license-Apache%202.0-green)](LICENSE)
+[![Sponsor](https://img.shields.io/badge/Sponsor-♥-ea4aaa?style=flat&logo=github)](https://github.com/sponsors/liberatti)
+
+
 ## Host Configuration
 Before diving into the container setup, ensure the following configurations on your host machine:
 

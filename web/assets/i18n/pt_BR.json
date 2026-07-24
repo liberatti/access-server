@@ -10,7 +10,8 @@
     "userForm": "Formulário de Usuário",
     "policyForm": "Formulário de Política",
     "dmzForm": "Formulário de Serviço DMZ",
-    "singleSignOn": "Autenticação Única"
+    "singleSignOn": "Autenticação Única",
+    "activeSessions": "Sessões Ativas"
   },
   "actions": {
     "create": "Adicionar",
@@ -37,6 +38,8 @@
     "serverName": "Nome do Servidor",
     "vpnNetwork": "Rede VPN",
     "netmask": "Máscara de Rede",
+    "publicAddress": "IP Público",
+    "publicPort": "Porta Pública",
     "pushedRoutes": "Rotas Publicadas",
     "username": "Nome de Usuário",
     "role": "Perfil / Função",
@@ -46,6 +49,9 @@
     "portMappings": "Mapeamentos de Porta",
     "description": "Descrição",
     "protocol": "Protocolo",
+    "auth": "Algoritmo de Autenticação",
+    "cipher": "Cifra",
+    "dataCiphers": "Cifras de Dados",
     "serverPort": "Porta do Servidor",
     "clientPort": "Porta do Cliente",
     "port": "Porta",
@@ -69,6 +75,13 @@
     "serverName": "ex. AccessServer-VPN",
     "vpnNetwork": "ex. 10.8.0.0",
     "netmask": "ex. 255.255.255.0",
+    "publicAddress": "ex. 203.0.113.1",
+    "publicPort": "ex. 1194",
+    "auth": "ex. SHA512",
+    "cipher": "ex. AES-256-GCM",
+    "dataCiphers": "ex. AES-256-GCM:AES-128-GCM:CHACHA20-POLY1305",
+    "loginFailed": "Erro de login",
+    "connectionError": "Falha de requisição",
     "description": "Digite a descrição do serviço",
     "selectClient": "Selecione um cliente",
     "selectPolicy": "Selecione a política de acesso"

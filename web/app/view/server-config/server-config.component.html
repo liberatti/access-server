@@ -35,6 +35,61 @@
             </mat-form-field>
           </div>
         </div>
+
+        <div class="mat-row">
+          <div class="mat-col-6">
+            <mat-form-field class="full-width" appearance="outline">
+              <mat-label>{{ 'attr.publicAddress' | translate }}</mat-label>
+              <input id="server.publicAddress" matInput formControlName="public_address"
+                [placeholder]="'hints.publicAddress' | translate">
+              <mat-icon matSuffix>public</mat-icon>
+            </mat-form-field>
+          </div>
+          <div class="mat-col-6">
+            <mat-form-field class="full-width" appearance="outline">
+              <mat-label>{{ 'attr.publicPort' | translate }}</mat-label>
+              <input id="server.publicPort" matInput type="number" formControlName="public_port"
+                [placeholder]="'hints.publicPort' | translate">
+              <mat-icon matSuffix>tag</mat-icon>
+            </mat-form-field>
+          </div>
+        </div>
+
+        <div class="mat-row">
+          <div class="mat-col-6">
+            <mat-form-field class="full-width" appearance="outline">
+              <mat-label>{{ 'attr.protocol' | translate }}</mat-label>
+              <mat-select id="server.protocol" formControlName="protocol">
+                <mat-option value="udp">UDP</mat-option>
+                <mat-option value="tcp-protocol">TCP (tcp-protocol)</mat-option>
+              </mat-select>
+            </mat-form-field>
+          </div>
+          <div class="mat-col-6">
+            <mat-form-field class="full-width" appearance="outline">
+              <mat-label>{{ 'attr.auth' | translate }}</mat-label>
+              <input id="server.auth" matInput formControlName="auth" [placeholder]="'hints.auth' | translate">
+              <mat-icon matSuffix>security</mat-icon>
+            </mat-form-field>
+          </div>
+        </div>
+
+        <div class="mat-row">
+          <div class="mat-col-6">
+            <mat-form-field class="full-width" appearance="outline">
+              <mat-label>{{ 'attr.cipher' | translate }}</mat-label>
+              <input id="server.cipher" matInput formControlName="cipher" [placeholder]="'hints.cipher' | translate">
+              <mat-icon matSuffix>vpn_key</mat-icon>
+            </mat-form-field>
+          </div>
+          <div class="mat-col-6">
+            <mat-form-field class="full-width" appearance="outline">
+              <mat-label>{{ 'attr.dataCiphers' | translate }}</mat-label>
+              <input id="server.dataCiphers" matInput formControlName="data_ciphers" [placeholder]="'hints.dataCiphers' | translate">
+              <mat-icon matSuffix>list</mat-icon>
+            </mat-form-field>
+          </div>
+        </div>
       </form>
     </mat-card-content>
 

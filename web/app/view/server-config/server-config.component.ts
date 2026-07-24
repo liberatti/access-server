@@ -7,6 +7,7 @@ import { MatChipsModule } from '@angular/material/chips';
 import { MatFormFieldModule } from '@angular/material/form-field';
 import { MatIconModule } from '@angular/material/icon';
 import { MatInputModule } from '@angular/material/input';
+import { MatSelectModule } from '@angular/material/select';
 import { MatSnackBar, MatSnackBarModule } from '@angular/material/snack-bar';
 import { Router, RouterModule } from '@angular/router';
 import { TranslateModule } from '@ngx-translate/core';
@@ -23,6 +24,7 @@ import { ServerService } from 'web/app/services/security.service';
     MatCardModule,
     MatFormFieldModule,
     MatInputModule,
+    MatSelectModule,
     MatButtonModule,
     MatIconModule,
     MatChipsModule,
@@ -36,7 +38,13 @@ export class ServerConfigComponent implements OnInit {
   form = new FormGroup({
     name: new FormControl<string>('AccessServer', { validators: [Validators.required] }),
     network: new FormControl<string>('10.8.0.0', { validators: [Validators.required] }),
-    netmask: new FormControl<string>('255.255.255.0', { validators: [Validators.required] })
+    netmask: new FormControl<string>('255.255.255.0', { validators: [Validators.required] }),
+    public_address: new FormControl<string>(''),
+    public_port: new FormControl<number | null>(null),
+    protocol: new FormControl<string>('udp'),
+    auth: new FormControl<string>('SHA512'),
+    cipher: new FormControl<string>('AES-256-GCM'),
+    data_ciphers: new FormControl<string>('AES-256-GCM:AES-128-GCM:CHACHA20-POLY1305')
   });
 
   networkForm = new FormGroup({
@@ -59,8 +67,15 @@ export class ServerConfigComponent implements OnInit {
           this.form.patchValue({
             name: data.name || 'AccessServer',
             network: data.network || '10.8.0.0',
-            netmask: data.netmask || '255.255.255.0'
+            netmask: data.netmask || '255.255.255.0',
+            public_address: data.public_address || '',
+            public_port: data.public_port || null,
+            protocol: data.protocol || 'udp',
+            auth: data.auth || 'SHA512',
+            cipher: data.cipher || 'AES-256-GCM',
+            data_ciphers: data.data_ciphers || data['data-ciphers'] || 'AES-256-GCM:AES-128-GCM:CHACHA20-POLY1305'
           });
+          this.networks = data.networks || [];
         }
       },
       error: () => {
@@ -86,8 +101,10 @@ export class ServerConfigComponent implements OnInit {
       return;
     }
 
+    const rawVal = this.form.value;
     const payload = {
-      ...this.form.value,
+      ...rawVal,
+      'data-ciphers': rawVal.data_ciphers,
       networks: this.networks
     };
 

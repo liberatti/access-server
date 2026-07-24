@@ -26,6 +26,7 @@ import { MatTooltipModule } from '@angular/material/tooltip';
 import { RouterModule } from '@angular/router';
 import { TranslateModule } from '@ngx-translate/core';
 import { ConfirmDialogComponent } from 'web/app/components/confirm-dialog/confirm-dialog.component';
+import { SessionsDialogComponent } from 'web/app/components/sessions-dialog/sessions-dialog.component';
 import { User } from 'web/app/models/security';
 import { DefaultPageMeta } from 'web/app/models/shared';
 import { NotificationService } from 'web/app/services/notification.service';
@@ -45,6 +46,14 @@ import { FileSaverModule, FileSaverService } from 'ngx-filesaver';
         MatTooltipModule, MatSelectModule, MatPaginatorModule, MatChipsModule,
         MatStepperModule, MatRadioModule, MatFormFieldModule, MatGridListModule
     ],
+    styles: [`
+        .sessions-link {
+            cursor: pointer;
+            text-decoration: underline;
+            color: #3f51b5;
+            font-weight: bold;
+        }
+    `]
 })
 export class UserListComponent implements OnInit, AfterViewInit {
     userDC: string[] = ['name', 'sessions', 'role', 'action'];
@@ -107,6 +116,16 @@ export class UserListComponent implements OnInit, AfterViewInit {
                     this.notificationService.openSnackBar('User removed');
                 });
             }
+        });
+    }
+
+    onShowSessions(element: User) {
+        this.confirmDialog.open(SessionsDialogComponent, {
+            data: {
+                username: element.name,
+                sessions: element.sessions || []
+            },
+            width: '400px'
         });
     }
 }

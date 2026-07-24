@@ -1,13 +1,13 @@
 client
 dev tun
-proto tcp-client
+proto {{ protocol }}
 disable-dco
 remote {{ public_addr }} {{ public_port }}
 nobind
 remote-cert-tls server
-auth SHA512
-cipher AES-256-GCM
-data-ciphers AES-256-GCM:AES-128-GCM:CHACHA20-POLY1305
+auth {{ auth }}
+cipher {{ cipher }}
+data-ciphers {{ data_ciphers }}
 verb 3
 keepalive 10 60
 auth-user-pass

@@ -382,13 +382,14 @@ h1, h2, h3, h4, b, strong {
     background: transparent !important;
 }
 
-.mat-mdc-header-cell {
+.mat-mdc-header-cell, .mat-header-cell {
     color: var(--text-primary) !important;
     font-weight: 700 !important;
     text-transform: uppercase !important;
     letter-spacing: 1px !important;
     font-size: 11px !important;
     border-bottom-color: var(--border-color) !important;
+    white-space: nowrap !important;
 }
 
 .mat-mdc-cell {

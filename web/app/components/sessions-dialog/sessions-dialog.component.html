@@ -1,0 +1,46 @@
+<h2 mat-dialog-title>
+  {{ 'titles.activeSessions' | translate }} ({{ data.sessions.length }})
+</h2>
+<mat-dialog-content class="sessions-dialog-content">
+  @if (data.sessions && data.sessions.length > 0) {
+    <div class="session-list">
+      @for (s of data.sessions; track s.remote_ip + '-' + s.local_ip) {
+        <div class="session-card">
+          <div class="session-header">
+            <mat-icon class="session-icon">router</mat-icon>
+            <span class="session-title">
+              <strong>Origem (Source):</strong> {{ s.remote_ip }}
+            </span>
+          </div>
+          <div class="session-details">
+            <div class="detail-item">
+              <strong>VPN IP:</strong> {{ s.local_ip }}
+            </div>
+            @if (s.created_at) {
+              <div class="detail-item">
+                <strong>Conectado em:</strong> {{ s.created_at | date:'dd/MM/yyyy HH:mm:ss' }}
+              </div>
+            }
+            @if (s.bytes_received !== undefined && s.bytes_sent !== undefined) {
+              <div class="detail-item stats-container">
+                <span class="stat-badge down">
+                  <mat-icon>arrow_downward</mat-icon> {{ formatBytes(s.bytes_sent) }}
+                </span>
+                <span class="stat-badge up">
+                  <mat-icon>arrow_upward</mat-icon> {{ formatBytes(s.bytes_received) }}
+                </span>
+              </div>
+            }
+          </div>
+        </div>
+      }
+    </div>
+  } @else {
+    <p>Nenhuma sessão ativa.</p>
+  }
+</mat-dialog-content>
+<mat-dialog-actions align="end">
+  <button mat-button mat-dialog-close cdkFocusInitial>
+    {{ 'actions.ok' | translate }}
+  </button>
+</mat-dialog-actions>

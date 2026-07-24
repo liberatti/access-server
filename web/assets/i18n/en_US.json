@@ -10,7 +10,8 @@
     "userForm": "User Form",
     "policyForm": "Policy Form",
     "dmzForm": "DMZ Service Form",
-    "singleSignOn": "Single Sign-On"
+    "singleSignOn": "Single Sign-On",
+    "activeSessions": "Active Sessions"
   },
   "actions": {
     "create": "Create",
@@ -37,6 +38,8 @@
     "serverName": "Server Name",
     "vpnNetwork": "VPN Network",
     "netmask": "Netmask",
+    "publicAddress": "Public IP",
+    "publicPort": "Public Port",
     "pushedRoutes": "Pushed Routes",
     "username": "Username",
     "role": "Role",
@@ -46,6 +49,9 @@
     "portMappings": "Port Mappings",
     "description": "Description",
     "protocol": "Protocol",
+    "auth": "Authentication Algorithm",
+    "cipher": "Cipher",
+    "dataCiphers": "Data Ciphers",
     "serverPort": "Server Port",
     "clientPort": "Client Port",
     "port": "Port",
@@ -69,6 +75,13 @@
     "serverName": "e.g. AccessServer-VPN",
     "vpnNetwork": "e.g. 10.8.0.0",
     "netmask": "e.g. 255.255.255.0",
+    "publicAddress": "e.g. 203.0.113.1",
+    "publicPort": "e.g. 1194",
+    "auth": "e.g. SHA512",
+    "cipher": "e.g. AES-256-GCM",
+    "dataCiphers": "e.g. AES-256-GCM:AES-128-GCM:CHACHA20-POLY1305",
+    "loginFailed": "Login error",
+    "connectionError": "Request failure",
     "description": "Enter service description",
     "selectClient": "Select a client user",
     "selectPolicy": "Select access policy"

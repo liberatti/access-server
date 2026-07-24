@@ -6,6 +6,13 @@
       <form [formGroup]="form" (ngSubmit)="login()" id="login-form" class="vcenter-form">
         <h2 class="vcenter-form-title">Sign-On</h2>
 
+        @if (errorMessage) {
+          <div class="vcenter-error-msg">
+            <mat-icon>error</mat-icon>
+            <span>{{ errorMessage | translate }}</span>
+          </div>
+        }
+
         <mat-form-field appearance="outline" class="vcenter-field">
           <mat-label>User name</mat-label>
           <input id="username" matInput placeholder="Enter username" formControlName="username" autocomplete="username"

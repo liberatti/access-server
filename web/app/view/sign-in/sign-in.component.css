@@ -196,3 +196,22 @@
   from { opacity: 0; transform: translateY(10px); }
   to { opacity: 1; transform: translateY(0); }
 }
+
+.vcenter-error-msg {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  background-color: #fef2f2;
+  border: 1px solid #fee2e2;
+  color: #dc2626;
+  padding: 12px;
+  border-radius: 6px;
+  font-size: 0.85rem;
+  margin-bottom: 8px;
+}
+
+.vcenter-error-msg mat-icon {
+  font-size: 18px;
+  width: 18px;
+  height: 18px;
+}

@@ -2,6 +2,8 @@
 import os
 import sys
 import bcrypt
+from datetime import datetime, timezone
+
 from api.model.user_model import UserDao
 from api.model.vpn_model import VPNSessionDao
 from nxcore.middleware.logging_manager import LoggingManager, logger
@@ -30,6 +32,7 @@ def auth_user(username, password):
 
 
 def connect(user_id, remote_port, remote_ip, local_ip):
+    created_at = datetime.now(timezone.utc).isoformat()
     with VPNSessionDao() as model:
         session = {
             "user_id": user_id,
@@ -37,6 +40,7 @@ def connect(user_id, remote_port, remote_ip, local_ip):
             "remote_ip": remote_ip,
             "local_ip": local_ip,
             "state": "pending",
+            "created_at": created_at,
         }
         model.persist(session)
     sys.exit(0)

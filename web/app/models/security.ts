@@ -14,6 +14,7 @@ export interface User {
     password: string;
     locale: string;
     session: VPNSession;
+    sessions?: Array<VPNSession>;
     policies: Array<AccessPolicy>;
     role:String;
 }

@@ -14,6 +14,7 @@ from api.tools.firewall_tool import FirewallTool
 from api.tools.pki_tool import PKITool
 from api.model.vpn_model import VPNSessionDao
 from api.model.policy_model import PolicyClientDao
+from api.model.server_config_model import ServerConfigDao
 from nxcore.middleware.logging_manager import logger
 
 
@@ -36,8 +37,12 @@ class VPNTool:
         """
         logger.info(f"Initialize server {config['name']}")
 
-        with open("data/config.json", "w") as f:
-            f.write(json.dumps(config))
+        with ServerConfigDao() as dao:
+            existing = dao.get_config()
+            if existing:
+                dao.update_by_id(existing["id"], config)
+            else:
+                dao.persist(config)
 
         PKITool.create_pki(config["name"])
         cls.create_client(config["admin_pk"])
@@ -53,29 +58,41 @@ class VPNTool:
         logger.info(f"User {user_id} disconnected")
 
     @classmethod
-    def session_monitor(cls):
-        """Monitor active VPN sessions and refresh firewall rules on state changes."""
-        logger.debug("Session monitor has started")
-        with VPNSessionDao() as model:
-            sessions = model.query_all()
-            for s in sessions["data"]:
-                if "pending" in s["state"]:
-                    logger.info(f"User {s['user_id']} connected, bind {s['local_ip']}")
-                    model.update_by_id(s["id"], {"state": "activated"})
-                    FirewallTool.refresh_user_chain(s["user_id"])
-                    with PolicyClientDao() as p_model:
-                        policies = p_model.get_by_client(s["user_id"])
-                        for p in policies:
-                            FirewallTool.refresh_policy_chain(p["id"])
-                if "disconnect" in s["state"]:
-                    logger.info(f"User {s['user_id']} disconnected")
-                    model.delete_by_user_id(s["user_id"])
-                    FirewallTool.refresh_user_chain(s["user_id"])
+    def parse_iptables_traffic(cls):
+        """Parse iptables -L -v -n -x to extract bytes received/sent for each active session IP.
 
-                    with PolicyClientDao() as p_model:
-                        policies = p_model.get_by_client(s["user_id"])
-                        for p in policies:
-                            FirewallTool.refresh_policy_chain(p["id"])
+        :return: Dictionary mapping local_ip to client stats.
+        :rtype: dict
+        """
+        import re
+        res = {}
+        try:
+            # -x outputs exact bytes instead of rounded values (like K, M, G)
+            out = subprocess.check_output("iptables -L -v -n -x", shell=True, text=True)
+            for line in out.splitlines():
+                # We search for comment: /* traffic_out_10.8.0.2 */ or /* traffic_in_10.8.0.2 */
+                m = re.search(r"/\*\s+traffic_(out|in)_(.*?)\s+\*/", line)
+                if m:
+                    direction = m.group(1) # 'out' or 'in'
+                    ip = m.group(2) # e.g. '10.8.0.2'
+                    parts = line.strip().split()
+                    if len(parts) >= 2:
+                        try:
+                            bytes_count = int(parts[1])
+                        except ValueError:
+                            continue
+                        if ip not in res:
+                            res[ip] = {"bytes_sent": 0, "bytes_received": 0}
+                        if direction == "out":
+                            # Traffic from client (received by server / upload)
+                            res[ip]["bytes_received"] += bytes_count
+                        else:
+                            # Traffic to client (sent to client / download)
+                            res[ip]["bytes_sent"] += bytes_count
+        except Exception as e:
+            logger.error(f"Error reading iptables stats: {e}")
+        return res
+
 
     @classmethod
     def is_active(cls):
@@ -166,8 +183,8 @@ class VPNTool:
             daoSession.delete_all()
 
         chmod_r("data", 0o777, recursive=True)
-        with open("data/config.json", "r") as a:
-            config = json.loads(a.read())
+        with ServerConfigDao() as dao:
+            config = dao.get_config() or {}
             cls.__create_server(config)
         if not os.path.exists("logs"):
             os.mkdir("logs")
@@ -199,6 +216,20 @@ class VPNTool:
                     {"ip": str(rede.network_address), "mask": str(rede.netmask)}
                 )
 
+        protocol = config.get("protocol") or "udp"
+        if "tcp" in protocol:
+            protocol = "tcp-server"
+        else:
+            protocol = "udp"
+
+        auth = config.get("auth") or "SHA512"
+        cipher = config.get("cipher") or "AES-256-GCM"
+        data_ciphers = (
+            config.get("data-ciphers")
+            or config.get("data_ciphers")
+            or "AES-256-GCM:AES-128-GCM:CHACHA20-POLY1305"
+        )
+
         template_path = get_template_path("server.conf.j2")
         with open(template_path, "r") as f:
             template = Template(f.read())
@@ -209,6 +240,10 @@ class VPNTool:
             pki_dir=PKITool.pki_dir,
             subnet=subnet,
             routes=routes,
+            protocol=protocol,
+            auth=auth,
+            cipher=cipher,
+            data_ciphers=data_ciphers,
         )
 
         with open("server.conf", "w") as f:
@@ -251,8 +286,8 @@ class VPNTool:
         with UserDao() as model:
             user = model.get_by_id(user_id)
 
-        with open("data/config.json", "r") as a:
-            config = json.loads(a.read())
+        with ServerConfigDao() as dao:
+            config = dao.get_config() or {}
 
         with open(f"{PKITool.pki_dir}/tc.key", "r") as a:
             tls_key = a.read().strip()
@@ -279,6 +314,20 @@ class VPNTool:
                             {"ip": str(rede.network_address), "mask": str(rede.netmask)}
                         )
 
+        protocol = config.get("protocol") or "udp"
+        if "tcp" in protocol:
+            protocol = "tcp-client"
+        else:
+            protocol = "udp"
+
+        auth = config.get("auth") or "SHA512"
+        cipher = config.get("cipher") or "AES-256-GCM"
+        data_ciphers = (
+            config.get("data-ciphers")
+            or config.get("data_ciphers")
+            or "AES-256-GCM:AES-128-GCM:CHACHA20-POLY1305"
+        )
+
         template_path = get_template_path("client.ovpn.j2")
         with open(template_path, "r") as f:
             template = Template(f.read())
@@ -292,4 +341,8 @@ class VPNTool:
             cli_key=cli_key,
             target=target,
             routes=routes,
+            protocol=protocol,
+            auth=auth,
+            cipher=cipher,
+            data_ciphers=data_ciphers,
         )

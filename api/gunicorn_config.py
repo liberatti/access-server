@@ -10,7 +10,7 @@ from nxcore.middleware.logging_manager import logger, LoggingManager
 import config as _config
 from api.tools.vpn_tool import VPNTool
 from api.tools.firewall_tool import FirewallTool
-from api.tasks import install_task
+from api.tasks import install_task, session_monitor
 
 LoggingManager(loglevel=_config.LOGLEVEL)
 
@@ -53,8 +53,7 @@ def post_fork(server, worker):
             install_task()
         VPNTool.start_service(wait=False)
         FirewallTool.create_firewall()
-    # else:
-    #    schedule.every(60).seconds.do(update_node_config)
+        schedule.every(10).seconds.do(session_monitor)
     threading.Thread(target=_scheduler, daemon=True).start()
     logger.info(f"AS started as {nxg_role}")
 

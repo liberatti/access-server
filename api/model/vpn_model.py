@@ -1,3 +1,4 @@
+from nxcore.common_utils import gen_random_string
 from nxcore.repository.duckdb_dao import DuckDAO
 import config
 
@@ -15,6 +16,7 @@ class VPNSessionDao(DuckDAO):
             db_path=config.DB_PATH, table_name="sessions", auto_commit=auto_commit
         )
         self.connect()
+        self.create_schema()
 
     def create_schema(self):
         """Create the sessions table schema and primary key index if not exists."""
@@ -25,13 +27,20 @@ class VPNSessionDao(DuckDAO):
                 remote_port integer,
                 remote_ip varchar(100),
                 local_ip varchar(100),
-                state varchar(64)
+                state varchar(64),
+                created_at TIMESTAMP,
+                bytes_received BIGINT DEFAULT 0,
+                bytes_sent BIGINT DEFAULT 0
             )
             """
         )
         self.ddl(
             f"CREATE UNIQUE INDEX if not exists {self.table_name}_pk ON {self.table_name}(_id)"
         )
+        try:
+            self.ddl(f"ALTER TABLE {self.table_name} ADD COLUMN created_at varchar(64)")
+        except Exception:
+            pass
 
     def from_dict(self, vo):
         """Prepare value object dictionary before persisting.
@@ -44,6 +53,20 @@ class VPNSessionDao(DuckDAO):
         if vo and "id" in vo:
             vo["_id"] = vo.pop("id")
         return super().from_dict(vo)
+
+    def persist(self, vo):
+        """Persist a new VPN session record.
+
+        :param vo: Dictionary containing VPN session details.
+        :type vo: dict
+        :return: Generated primary key ID.
+        :rtype: str
+        """
+        vo = self.from_dict(vo)
+        if "_id" not in vo or not vo["_id"]:
+            vo["_id"] = gen_random_string(12)
+        super().persist(vo)
+        return vo["_id"]
 
     def to_dict(self, row):
         """Transform database row into domain dictionary.
@@ -91,3 +114,25 @@ class VPNSessionDao(DuckDAO):
         sql = f"SELECT * FROM {self.table_name} WHERE user_id = ? and state='activated' limit 1"
         rs = self._query(sql, (user_id,), fetch=True)
         return self.to_dict(rs[0]) if rs else None
+
+    def query_all(self, page=None, per_page=None):
+        """Query sessions with optional pagination.
+
+        :param page: Page number for pagination.
+        :type page: int or None
+        :param per_page: Number of items per page.
+        :type per_page: int or None
+        :return: Dictionary containing metadata and data records.
+        :rtype: dict
+        """
+        from math import ceil
+
+        pagination = None
+        if page and per_page:
+            pagination = {"page": page, "per_page": per_page}
+        result = self.get_all(pagination=pagination)
+        metadata = result["metadata"]
+        total_elements = metadata.get("total_elements", 0)
+        p_size = metadata.get("per_page", total_elements) or 1
+        metadata["total_pages"] = ceil(total_elements / p_size) if p_size > 0 else 0
+        return result
