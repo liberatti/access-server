@@ -65,7 +65,6 @@ jobs:
         if: github.event_name == 'push'
         uses: docker/build-push-action@v6
         with:
-          context: app
           platforms: linux/amd64,linux/arm64
           push: true
           tags: ${{ steps.meta.outputs.tags }}
